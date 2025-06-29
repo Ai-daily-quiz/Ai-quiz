@@ -4,6 +4,8 @@ import './App.css';
 
 function App() {
   const [count, setCount] = useState(0);
+  const myClipBoard = navigator.clipboard;
+
   const handleClick = () => {
     console.log('clicked');
     const payload = {
@@ -14,10 +16,16 @@ function App() {
     axios.post('http://localhost:4000/api/message', payload);
   };
 
+  const handleClipClick = () => {
+    myClipBoard.readText().then(clipText => {
+      console.log('현재 클립보드의 값: ' + clipText);
+    });
+  };
+
   return (
     <>
       <div>
-        <button onClick={handleClick}>클립보드 보기</button>
+        <button onClick={handleClipClick}>클립보드 보기</button>
       </div>
       <div>
         <textarea
