@@ -16,7 +16,19 @@ function App() {
 
   return (
     <>
-      <button onClick={handleClick}>버튼</button>
+      <div>
+        <button onClick={handleClick}>클립보드 보기</button>
+      </div>
+      <div>
+        <textarea
+          name="clipboard"
+          id="clipboard"
+          placeholder="클립보드 100자 보기..."
+        ></textarea>
+      </div>
+      <div>
+        <button onClick={handleClick}>제출</button>
+      </div>
 
       <div className="card">
         <button onClick={() => setCount(count => count + 1)}>
