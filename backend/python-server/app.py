@@ -5,7 +5,6 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
-# 기본 라우트
 @app.route('/')
 def home():
     return jsonify({
@@ -28,6 +27,5 @@ def relay_from_node():
 
     return jsonify(result)
 
-# 서버 실행
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
