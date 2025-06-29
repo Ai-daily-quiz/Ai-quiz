@@ -5,6 +5,7 @@ import './App.css';
 function App() {
   const [count, setCount] = useState(0);
   const myClipBoard = navigator.clipboard;
+  const [previewClipBoard, setPreviewClipBoard] = useState(null);
 
   const handleClick = () => {
     console.log('clicked');
@@ -18,7 +19,9 @@ function App() {
 
   const handleClipClick = () => {
     myClipBoard.readText().then(clipText => {
-      console.log('현재 클립보드의 값: ' + clipText);
+      const slicedText = clipText.slice(-500, -60);
+      console.log('클리보드 미리보기 텍스트: ' + slicedText);
+      setPreviewClipBoard(slicedText);
     });
   };
 
@@ -32,6 +35,8 @@ function App() {
           name="clipboard"
           id="clipboard"
           placeholder="클립보드 100자 보기..."
+          value={previewClipBoard}
+          style={{ fontSize: '8px' }}
         ></textarea>
       </div>
       <div>
