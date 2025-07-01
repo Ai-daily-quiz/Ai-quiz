@@ -16,12 +16,12 @@ categories = ["역사", "과학", "문학", "경제", "사회", "문화", "기�
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
     try:
-        data = request.get_json()
+        clipboard = request.get_json()
 
-        if not data or 'text' not in data:
+        if not clipboard or 'text' not in clipboard:
             return jsonify({"error": "No text provided"}), 400
 
-        text = data['text']
+        text = clipboard['text']
         # 데이터 클렌징 위치
         text = cleanse_text(text)
 
@@ -60,7 +60,7 @@ def analyze_text():
 
         return jsonify({
             "success": True,
-            "data": result
+            "result": result
         })
 
     except Exception as e:
@@ -93,5 +93,5 @@ def cleanse_text(text):
 
 
 if __name__ == '__main__':
-    print("🚀 Python 서버 시작중...")
+    print("🟢 Python 서버 시작중...")
     app.run(debug=True, port=5001)

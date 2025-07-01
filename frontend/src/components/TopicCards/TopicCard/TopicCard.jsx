@@ -1,9 +1,9 @@
 import './TopicCard.css';
 
-export const TopicCard = () => {
+export const TopicCard = ({ topic }) => {
   return (
     <>
-      <div className="TopicCard">Card</div>
+      <div className="TopicCard">{topic.category}</div>
     </>
   );
 };
