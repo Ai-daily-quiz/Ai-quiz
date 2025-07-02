@@ -5,6 +5,7 @@ import { Textarea } from './Button/Textarea';
 
 export const ClipboardPreview = ({ analyzeClipboard, onSubmit }) => {
   const [preview, setPreview] = useState(null);
+  const [topic, setTopic] = useState(null);
   const myClipBoard = navigator.clipboard;
 
   const handleClipBoard = () => {
