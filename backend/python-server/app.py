@@ -41,6 +41,7 @@ def analyze_text():
         - 객관식: "category-YYMMDD-HHMMSS-mc-001"
         - OX문제: "category-YYMMDD-HHMMSS-ox-001"
         주제당 객관식 하나 OX 하나 만들어줘.
+        correctAnswer: 0~3 까지 index랑 동일하게 줘.
         {{
           "topics": [
             {{
