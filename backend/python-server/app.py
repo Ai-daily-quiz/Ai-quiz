@@ -62,7 +62,7 @@ def analyze_text():
                   "id": "technology-240702-193156-ox-001",
                   "type": "ox",
                   "question": "...",
-                  "options": [true, false]
+                  "options": ["O", "X"]
                   "correctAnswer": false,
                   "explanation": "..."
                 }}

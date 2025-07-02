@@ -28,7 +28,7 @@ function App() {
 
   const handleClipBoardSumbit = () => {
     setIsPreview(false);
-    console.log('제출 버튼 클릭!');
+    console.log('보내기 버튼 클릭!');
     // 분석이 완료된 경우 isResponse
     if (isResponse) {
       setIsTopicCards(true);
