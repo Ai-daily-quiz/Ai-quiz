@@ -8,6 +8,26 @@ export const Quiz = ({ selectedTopic }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   console.log('정답 : ', correctAnswer);
 
+  const getOptionStyle = index => {
+    // 제출 전
+    // 정답 외 #dbdbdb
+    if (!isSubmitted) {
+      return 'bg-[#efefef] border-2 border-black-500 m-3 p-3 rounded-xl text-xs';
+    }
+
+    // 제출 후
+    // 정답 #20d46e
+    if (index === correctAnswer) {
+      return 'bg-green-100 border-2 border-green-500 m-3 p-3 rounded-xl text-xs';
+    }
+
+    // #ffc8d2
+    if (index === selectedAnswer) {
+      return 'bg-red-100 border-2 border-red-500 m-3 p-3 rounded-xl text-xs';
+    }
+    return 'bg-[#efefef] border-2 border-stone-500 m-3 p-3 rounded-xl text-xs';
+  };
+
   const handleAnswer = index => {
     setIsSubmitted(true);
     setSelectedAnswer(index);
@@ -18,12 +38,15 @@ export const Quiz = ({ selectedTopic }) => {
       console.log('오답');
     }
   };
+
   return (
     <>
+      {/* 주제 */}
       <div className="bg-[#c7c7c7] mt-3 p-3 rounded-xl">
         {selectedTopic.category}
       </div>
 
+      {/* 문제 */}
       <div className="bg-[#c7c7c7] mt-3 p-3 rounded-xl">
         {selectedTopic.questions[0].question}
       </div>
@@ -43,7 +66,7 @@ export const Quiz = ({ selectedTopic }) => {
         {isSubmitted &&
           selectedTopic.questions[0].options.map((option, index) => (
             <div
-              className="bg-[#c7c7c7] border border-green-500 m-3 p-3 rounded-xl text-xs "
+              className={getOptionStyle(index)}
               onClick={() => handleAnswer(index)}
             >
               {index + 1 + '. ' + option}
@@ -55,7 +78,7 @@ export const Quiz = ({ selectedTopic }) => {
           {selectedAnswer === correctAnswer ? (
             <div className="bg-[#32a852] text-white">정답입니다 ✅</div>
           ) : (
-            <div className="bg-[#e67e8e] text-white">오답입니다 ❌</div>
+            <div className="bg-[#ed6d91] text-white">오답입니다 ❌</div>
           )}
         </div>
       )}
