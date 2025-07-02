@@ -31,20 +31,43 @@ def analyze_text():
         prompt = f"""
         다음 텍스트를 분석해서 아래 카테고리 중 가장 적합한 4개의 세부 주제 선택해서 제시해줘.
         각 카테고리에 대한 구체적인 세부 주제를 생성해줘.
-        세부 주제당 O/X퀴즈 한개 사지선답 객관식 문제 한개 총 2개씩 만들어 줘.
-
         카테고리: {', '.join(categories)}
 
-        텍스트: {text[:5000]}
+        텍스트: {text[:10000]}
 
         아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
-        id는 category, 오늘날짜, {formatted_date} 조합을 첫번째 토픽 아이디로만들고 다음 토픽부터는 second를 하나씩 더해서 만들어줘.
+        id는 {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
+
+        - 객관식: "category-YYMMDD-HHMMSS-mc-001"
+        - OX문제: "category-YYMMDD-HHMMSS-ox-001"
+        주제당 객관식 하나 OX 하나 만들어줘.
         {{
-            "topics": [
-                {{"id": "category+"-"yymmdd"-"hhmmss" category": "카테고리", "title": "제목", "description": "주제 설명",
-                "quizOX": "OX 문제", "quizOXAnswer": "OX 문제 답", "quizOXAnswerExplanation": "OX 문제 답 해설"
-                quizMultipleChoice: "객관식 문제", answerOptions: "답 보기", quizMultipleChoiceAnswer: "객관식 문제 답", quizMultipleChoiceAnswerExplanation: "객관식 문제 답 해설"}},
-            ]
+          "topics": [
+            {{
+              "id": "technology-240702-193156",
+              "category": "기술",
+              "title": "기계식 키보드",
+              "description": "...",
+              "questions": [
+                {{
+                  "id": "technology-240702-193156-mc-001",
+                  "type": "multiple",
+                  "question": "...",
+                  "options": [...],
+                  "correctAnswer": 3,
+                  "explanation": "..."
+                }},
+                {{
+                  "id": "technology-240702-193156-ox-001",
+                  "type": "ox",
+                  "question": "...",
+                  "options": [true, false]
+                  "correctAnswer": false,
+                  "explanation": "..."
+                }}
+              ]
+            }}
+          ]
         }}
         """
 
