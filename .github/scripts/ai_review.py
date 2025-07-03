@@ -32,6 +32,7 @@ def review_with_llama3(diff_content):
     """Llama3로 코드를 리뷰합니다."""
     prompt = f"""
     다음 코드 변경사항을 검토해주세요. Flask 애플리케이션에 대한 PR입니다.
+     **중요: 모든 답변은 한국어로만 작성해주세요.**
 
     검토 사항:
     1. 보안 이슈
