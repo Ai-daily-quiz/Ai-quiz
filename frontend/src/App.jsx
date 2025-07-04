@@ -3,13 +3,16 @@ import { ClipboardPreview } from './components/ClipboardPreview/ClipboardPreview
 import { TopicCards } from './components/TopicCards/TopicCards';
 import axios from 'axios';
 import { Quiz } from './components/Quiz/Quiz';
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
+import supabase from './supabase';
 
-const supabase = createClient(
-  'https://your-project.supabase.co',
-  'YOUR_ANON_KEY'
-);
+const testConnection = async () => {
+  const { data, error } = await supabase.from('topics').select('*');
+
+  console.log('Topics:', data);
+  console.log('Error:', error);
+};
+
+testConnection();
 
 function App() {
   const [isPreview, setIsPreview] = useState(true);
