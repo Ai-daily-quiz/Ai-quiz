@@ -32,6 +32,27 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const getPendingQuiz = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await axios.get(
+        'http://localhost:4000/api/quiz/pending',
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      console.log('풀던 퀴즈 리스트:', response.data);
+    } catch (error) {
+      console.error('퀴즈 가져오기 오류:', error);
+    }
+  };
+
   const submitQuizAnswer = async (quizId, userChoice, result) => {
     try {
       const {
@@ -41,8 +62,8 @@ function App() {
       const response = await axios.post(
         'http://localhost:4000/api/quiz/submit',
         {
-          quiz_id: quizId,
-          your_choice: userChoice,
+          quizId: quizId,
+          userChoice: userChoice,
           result: result,
         },
         {
@@ -131,6 +152,7 @@ function App() {
           analyzeClipboard={analyzeClipboard}
           isLoading={isLoading}
           onSubmit={handleClipBoardSumbit}
+          onGetQuizzes={getPendingQuiz}
         />
       )}
       {isLoading && 'Loading Indicator'}

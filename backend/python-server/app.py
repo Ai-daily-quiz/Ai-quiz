@@ -42,14 +42,34 @@ def verify_token_and_get_uuid(token):
     except:
         return None
 
+
+@app.route('/api/quiz/pending', methods=['GET'])
+def get_pending_quiz():
+    auth_header = request.headers.get('Authorization', '')
+    token = auth_header.replace('Bearer ', '')
+    try:
+        userInfo = supabase.auth.get_user(token)
+        user_id = userInfo.user.id
+
+        response = supabase.table('quizzes').select("question").eq("user_id",user_id).eq("status","pending").execute()
+        return jsonify({
+            "success": True,
+            "result": response.data
+        })
+
+    except Exception as e:
+        print("에러 : ",e)
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/quiz/submit', methods=['POST'])
 def submit_quiz():
     auth_header = request.headers.get('Authorization', '')
     token = auth_header.replace('Bearer ', '')
 
     data = request.get_json()
-    quiz_id = data.get('quiz_id')      # Python에서는 이렇게 추출
-    user_choice = data.get('your_choice')
+    quiz_id = data.get('quizId')      # Python에서는 이렇게 추출
+    user_choice = data.get('userChoice')
     result = data.get('result')
 
     try:
@@ -58,7 +78,8 @@ def submit_quiz():
       response = supabase.table("quizzes").update({
           "exam_date": "now()",
           "your_choice": user_choice,
-          "result": result
+          "result": result,
+          "status": "done"
       }).eq("user_id",userInfo.user.id).eq("quiz_id",quiz_id).execute()
       return jsonify({
               'success': True,

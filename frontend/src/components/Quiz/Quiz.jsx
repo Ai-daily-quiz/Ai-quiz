@@ -108,18 +108,10 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
       )}
 
       {/* 다음 */}
-      {/* 답을 선택하고
-      '다음'을 누르면,
-      - exam_date
-      - your_choice
-      - result (pass/fail)
-      - status ('pending' => 'done')
-
-       */}
       <div
         className="bg-[#dcdcdc] rounded-lg float-right w-1/6 mt-1 text-xs"
         onClick={() => {
-          moveNextQuestion;
+          moveNextQuestion();
           onClickSubmit(
             selectedTopic.questions[questionIndex].id,
             selectedAnswer, // 선택한 답
