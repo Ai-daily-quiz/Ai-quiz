@@ -19,6 +19,13 @@ supabase: Client = create_client(url, key)
 
 model = genai.GenerativeModel('gemini-2.0-flash') # 문제 출제 ?
 
+topics_id = supabase.table('topics').select("id").execute()
+topics_ref = []
+for row in topics_id.data :
+    topic_id = row["id"]
+    topic_prefix = topic_id.split("-")[0]
+    topics_ref.append(topic_prefix)
+
 topics = supabase.table('topics').select("*").execute()
 category_ref = []
 for topic in topics.data:
@@ -35,6 +42,33 @@ def verify_token_and_get_uuid(token):
     except:
         return None
 
+@app.route('/api/quiz/submit', methods=['POST'])
+def submit_quiz():
+    auth_header = request.headers.get('Authorization', '')
+    token = auth_header.replace('Bearer ', '')
+
+    data = request.get_json()
+    quiz_id = data.get('quiz_id')      # Python에서는 이렇게 추출
+    user_choice = data.get('your_choice')
+    result = data.get('result')
+
+    try:
+      userInfo = supabase.auth.get_user(token)
+
+      response = supabase.table("quizzes").update({
+          "exam_date": "now()",
+          "your_choice": user_choice,
+          "result": result
+      }).eq("user_id",userInfo.user.id).eq("quiz_id",quiz_id).execute()
+      return jsonify({
+              'success': True,
+              'message': '퀴즈 결과가 저장되었습니다.'
+          })
+
+
+    except Exception as e:
+        print("에러 : ",e)
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
@@ -69,7 +103,8 @@ def analyze_text():
 
         - 객관식: "category(영어)-YYMMDD-HHMMSS-mc-001"
         - OX문제: "category(영어)-YYMMDD-HHMMSS-ox-001"
-        **중요: ID는 반드시 형식을 지켜줘. category(영어)-YYMMDD-HHMMSS-mc-001**
+        **중요: ID는 반드시 category(영어)-YYMMDD-HHMMSS-mc-001** 형식을 지키고,
+        category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
         주제당 객관식 하나 OX 하나 만들어줘.
         type: multiple의 correctAnswer는 0~3 까지 index랑 동일하게 줘.
         type: ox의 correctAnswer는 0~1 까지 index랑 동일하게 줘. ('O' = index 0)

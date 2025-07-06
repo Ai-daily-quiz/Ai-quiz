@@ -32,6 +32,32 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const submitQuizAnswer = async (quizId, userChoice, result) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await axios.post(
+        'http://localhost:4000/api/quiz/submit',
+        {
+          quiz_id: quizId,
+          your_choice: userChoice,
+          result: result,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      console.log('퀴즈 결과 저장됨:', response.data);
+    } catch (error) {
+      console.error('퀴즈 제출 오류:', error);
+    }
+  };
+
   const analyzeClipboard = async clipText => {
     const payload = {
       clipboard: clipText,
@@ -113,6 +139,7 @@ function App() {
           <Quiz
             selectedTopic={selectedTopic}
             setIsTopicComplete={setIsTopicComplete}
+            onClickSubmit={submitQuizAnswer}
           />
         </div>
       )}

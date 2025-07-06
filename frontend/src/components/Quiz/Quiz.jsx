@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export const Quiz = ({ selectedTopic, setIsTopicComplete }) => {
+export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -50,6 +50,7 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete }) => {
     setIsSubmitted(false);
     setQuestionIndex(questionIndex + 1);
   };
+
   return (
     <>
       {/* 주제 */}
@@ -106,12 +107,27 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete }) => {
         </div>
       )}
 
-      {/* 다음으로 */}
+      {/* 다음 */}
+      {/* 답을 선택하고
+      '다음'을 누르면,
+      - exam_date
+      - your_choice
+      - result (pass/fail)
+      - status ('pending' => 'done')
+
+       */}
       <div
         className="bg-[#dcdcdc] rounded-lg float-right w-1/6 mt-1 text-xs"
-        onClick={moveNextQuestion}
+        onClick={() => {
+          moveNextQuestion;
+          onClickSubmit(
+            selectedTopic.questions[questionIndex].id,
+            selectedAnswer, // 선택한 답
+            selectedAnswer === correctAnswer ? 'pass' : 'fail' // result
+          );
+        }}
       >
-        {'다음으로'}
+        {'다음'}
       </div>
     </>
   );
