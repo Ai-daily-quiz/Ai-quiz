@@ -47,10 +47,18 @@ app.post("/api/message", async (req, res) => {
   try {
     const { clipboard } = req.body;
     console.log("🟢 클립보드 텍스트 길이:", clipboard?.length);
-
-    const response = await axios.post("http://localhost:5001/api/analyze", {
-      text: clipboard,
-    });
+    const authHeader = req.headers.authorization;
+    const response = await axios.post(
+      "http://localhost:5001/api/analyze",
+      {
+        text: clipboard,
+      },
+      {
+        headers: {
+          Authorization: authHeader, // 헤더 전달
+        },
+      }
+    );
 
     console.log("🟢 Python 서버 응답:", response.data);
     console.log("🟢 클라이언트로 전송");

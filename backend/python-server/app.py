@@ -5,20 +5,46 @@ import json
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+from supabase import create_client, Client
+import jwt
+import uuid
 
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_SERVICE_KEY")
+supabase: Client = create_client(url, key)
 
 model = genai.GenerativeModel('gemini-2.0-flash') # 문제 출제 ?
-# categories = ["역사", "과학", "문학", "경제", "사회", "문화", "기술", "예술"]
-categories = ["문화/예술", "경제/경영", "엔터테인먼트", "음식/요리", "게임", "일반상식", "지리", "역사", "IT/기술", "언어/문학", "의학/건강", "자연/환경", "정치/사회", "과학", "스포츠"]
 
+topics = supabase.table('topics').select("*").execute()
+category_ref = []
+for topic in topics.data:
+    category_ref.append(topic['topic'] + " : " +topic['description'])
+
+# categories = ["문화/예술", "경제/경영", "엔터테인먼트", "음식/요리", "게임", "일반상식", "지리", "역사", "IT/기술", "언어/문학", "의학/건강", "자연/환경", "정치/사회", "과학", "스포츠"]
+
+
+def verify_token_and_get_uuid(token):
+    try:
+        # 서명 검증 없이 디코드 (Supabase가 이미 검증)
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        return decoded['sub']  # user UUID
+    except:
+        return None
 
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
+    auth_header = request.headers.get('Authorization', '')
+    token = auth_header.replace('Bearer ', '')
+    user_id = verify_token_and_get_uuid(token)
+    print("user_id : ",user_id)
+    if not user_id:
+        return jsonify({'error': 'Invalid token'}), 401
+
     try:
         clipboard = request.get_json()
         now = datetime.now()
@@ -33,46 +59,47 @@ def analyze_text():
 
         prompt = f"""
         다음 텍스트를 분석해서 아래 카테고리 중 가장 적합한 4개의 세부 주제 선택해서 제시해줘.
-        각 카테고리에 대한 구체적인 세부 주제를 생성해줘.
-        카테고리: {', '.join(categories)}
+        각 카테고리 분류기준을 참고해서 구체적인 세부 주제를 생성해줘.
+        카테고리 분류기준 : {category_ref}
 
         텍스트: {text[:10000]}
 
         아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
-        id는 {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
+        id는 영어와 숫자의 조합으로 만들어주고. {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
 
-        - 객관식: "category-YYMMDD-HHMMSS-mc-001"
-        - OX문제: "category-YYMMDD-HHMMSS-ox-001"
+        - 객관식: "category(영어)-YYMMDD-HHMMSS-mc-001"
+        - OX문제: "category(영어)-YYMMDD-HHMMSS-ox-001"
+        **중요: ID는 반드시 형식을 지켜줘. category(영어)-YYMMDD-HHMMSS-mc-001**
         주제당 객관식 하나 OX 하나 만들어줘.
         type: multiple의 correctAnswer는 0~3 까지 index랑 동일하게 줘.
         type: ox의 correctAnswer는 0~1 까지 index랑 동일하게 줘. ('O' = index 0)
         {{
-          "topics": [
+        "topics": [
+        {{
+            "id": "technology-240702-193156",
+            "category": "기술",
+            "title": "기계식 키보드",
+            "description": "...",
+            "questions": [
             {{
-              "id": "technology-240702-193156",
-              "category": "기술",
-              "title": "기계식 키보드",
-              "description": "...",
-              "questions": [
-                {{
-                  "id": "technology-240702-193156-mc-001",
-                  "type": "multiple",
-                  "question": "...",
-                  "options": [...],
-                  "correctAnswer": 3,
-                  "explanation": "..."
-                }},
-                {{
-                  "id": "technology-240702-193156-ox-001",
-                  "type": "ox",
-                  "question": "...",
-                  "options": ["O", "X"]
-                  "correctAnswer": 1,
-                  "explanation": "..."
-                }}
-              ]
+                "id": "technology-240702-193156-mc-001",
+                "type": "multiple",
+                "question": "...",
+                "options": [...],
+                "correctAnswer": 3,
+                "explanation": "..."
+            }},
+            {{
+                "id": "technology-240702-193156-ox-001",
+                "type": "ox",
+                "question": "...",
+                "options": ["O", "X"]
+                "correctAnswer": 1,
+                "explanation": "..."
             }}
-          ]
+            ]
+        }}
+        ]
         }}
         """
 
@@ -86,6 +113,29 @@ def analyze_text():
             response_text = response_text[3:-3]
 
         result = json.loads(response_text)
+        quiz_list = []
+
+        for topic in result["topics"]:
+            category = topic["category"]
+
+            for q in topic["questions"]:
+                quiz_data = {
+                    "quiz_id": q["id"],
+                    "user_id": user_id,  # 프론트에서 받은 user_id
+                    "topic": category,
+                    "quiz_type": "multiple_choice" if q["type"] == "multiple" else "ox",
+                    "question": q["question"],
+                    "options": q["options"],  # JSON으로 변환 불필요
+                    "correct_answer": str(q["correctAnswer"]),
+                    "explanation": q["explanation"],
+                    "status": "pending"
+                    # exam_date, your_choice, result는 NULL로 (나중에 업데이트)
+                }
+                quiz_list.append(quiz_data)
+
+        # 배치 삽입
+        if quiz_list:
+            supabase.table("quizzes").insert(quiz_list).execute()
 
         return jsonify({
             "success": True,

@@ -6,15 +6,6 @@ import { Quiz } from './components/Quiz/Quiz';
 import LoginModal from './components/LoginModal/LoginModal';
 import supabase from './supabase';
 
-const testConnection = async () => {
-  const { data, error } = await supabase.from('topics').select('*');
-
-  console.log('Topics:', data);
-  console.log('Error:', error);
-};
-
-testConnection();
-
 function App() {
   const [isPreview, setIsPreview] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,9 +37,18 @@ function App() {
       clipboard: clipText,
       timestamp: new Date().toISOString(),
     };
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    // const session = await supabase.auth.getSession();
     const response = await axios.post(
       'http://localhost:4000/api/message',
-      payload
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      }
     );
     setIsResponse(true);
     setTopics(response.data.result.topics);
