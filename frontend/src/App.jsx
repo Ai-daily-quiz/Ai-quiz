@@ -53,7 +53,13 @@ function App() {
     }
   };
 
-  const submitQuizAnswer = async (quizId, userChoice, result) => {
+  const submitQuizAnswer = async (
+    quizId,
+    topicId,
+    userChoice,
+    result,
+    questionIndex
+  ) => {
     try {
       const {
         data: { session },
@@ -63,8 +69,10 @@ function App() {
         'http://localhost:4000/api/quiz/submit',
         {
           quizId: quizId,
+          topicId: topicId,
           userChoice: userChoice,
           result: result,
+          questionIndex: questionIndex,
         },
         {
           headers: {

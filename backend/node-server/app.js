@@ -62,8 +62,7 @@ app.post("/api/quiz/submit", async (req, res) => {
       { headers: req.headers }
     );
 
-    console.log("🟢 Python 서버 응답:", response.data);
-    console.log("🟢 클라이언트로 전송");
+    console.log("Python 서버 응답:", response.data);
 
     // 응답을 클라이언트에게 전송
     res.json(response.data);
@@ -79,7 +78,7 @@ app.post("/api/quiz/submit", async (req, res) => {
 app.post("/api/message", async (req, res) => {
   try {
     const { clipboard } = req.body;
-    console.log("🟢 클립보드 텍스트 길이:", clipboard?.length);
+    console.log("🪢 클립보드 텍스트 길이:", clipboard?.length);
     const authHeader = req.headers.authorization;
     const response = await axios.post(
       "http://localhost:5001/api/analyze",
@@ -93,8 +92,7 @@ app.post("/api/message", async (req, res) => {
       }
     );
 
-    console.log("🟢 Python 서버 응답:", response.data);
-    console.log("🟢 클라이언트로 전송");
+    console.log("Python 서버 응답:", response.data);
 
     // 응답을 클라이언트에게 전송
     res.json(response.data);

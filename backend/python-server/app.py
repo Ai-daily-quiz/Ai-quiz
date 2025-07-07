@@ -46,7 +46,7 @@ def get_pending_quiz():
         userInfo = supabase.auth.get_user(token)
         user_id = userInfo.user.id
 
-        response = supabase.table('quizzes').select("question").eq("user_id",user_id).eq("status","pending").execute()
+        response = supabase.table('quizzes').select("question").eq("user_id",user_id).eq("quiz_status","pending").execute()
         return jsonify({
             "success": True,
             "result": response.data
@@ -64,8 +64,10 @@ def submit_quiz():
 
     data = request.get_json()
     quiz_id = data.get('quizId')      # Python에서는 이렇게 추출
+    topic_id = data.get('topicId')      # Python에서는 이렇게 추출
     user_choice = data.get('userChoice')
     result = data.get('result')
+    questionIndex = data.get('questionIndex')
 
     try:
       userInfo = supabase.auth.get_user(token)
@@ -74,8 +76,16 @@ def submit_quiz():
           "exam_date": "now()",
           "your_choice": user_choice,
           "result": result,
-          "status": "done"
+          "quiz_status": "done",
       }).eq("user_id",userInfo.user.id).eq("quiz_id",quiz_id).execute()
+      print("🟢 questionIndex : ",questionIndex)
+      print("🟢 topic_id : ",topic_id)
+
+      supabase.table("quizzes").update({
+          "topic_status": "done" if questionIndex == 1 else "pending",
+      }).eq("user_id",userInfo.user.id).eq("topic_id",topic_id).execute()
+
+
       return jsonify({
               'success': True,
               'message': '퀴즈 결과가 저장되었습니다.'
@@ -109,6 +119,7 @@ def analyze_text():
 
         prompt = f"""
         다음 텍스트를 분석해서 아래 카테고리 중 가장 적합한 4개의 세부 주제 선택해서 제시해줘.
+        4개의 세부 주제는 중복되지 않도록 모두 다른 것으로 제시해줘.
         각 카테고리 분류기준을 참고해서 구체적인 세부 주제를 생성해줘.
         카테고리 분류기준 : {category_ref}
 
@@ -117,9 +128,12 @@ def analyze_text():
         아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
         id는 영어와 숫자의 조합으로 만들어주고. {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
 
-        - 객관식: "category(영어)-YYMMDD-HHMMSS-mc-001"
-        - OX문제: "category(영어)-YYMMDD-HHMMSS-ox-001"
-        **중요: ID는 반드시 category(영어)-YYMMDD-HHMMSS-mc-001** 형식을 지키고,
+        - 객관식: "category(영어)-YYMMDD-HHMMSS-mc"
+        - OX문제: "category(영어)-YYMMDD-HHMMSS-ox"
+        **중요: topic_id 와 question_id 는 반드시
+        topic_id : technology(영어)-YYMMDD-HHMMSS
+        question_id : category(영어)-mc-YYMMDD-HHMMSS
+        ** 형식을 지키고,
         category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
         주제당 객관식 하나 OX 하나 만들어줘.
         type: multiple의 correctAnswer는 0~3 까지 index랑 동일하게 줘.
@@ -127,13 +141,13 @@ def analyze_text():
         {{
         "topics": [
         {{
-            "id": "technology-240702-193156",
+            "topic_id": "technology(영어)-240702-193156",
             "category": "기술",
             "title": "기계식 키보드",
             "description": "...",
             "questions": [
             {{
-                "id": "technology-240702-193156-mc-001",
+                "question_id": "technology-mc-240702-193156",
                 "type": "multiple",
                 "question": "...",
                 "options": [...],
@@ -141,7 +155,7 @@ def analyze_text():
                 "explanation": "..."
             }},
             {{
-                "id": "technology-240702-193156-ox-001",
+                "question_id": "technology-240702-193156-ox-001",
                 "type": "ox",
                 "question": "...",
                 "options": ["O", "X"]
@@ -159,19 +173,21 @@ def analyze_text():
 
         for topic in result["topics"]:
             category = topic["category"]
+            topic_id = topic["topic_id"]
 
             for q in topic["questions"]:
                 quiz_data = {
-                    "quiz_id": q["id"],
-                    "user_id": user_id,  # 프론트에서 받은 user_id
+                    "quiz_id": q["question_id"],
+                    "topic_id": topic_id,
+                    "user_id": user_id,
                     "topic": category,
                     "quiz_type": "multiple_choice" if q["type"] == "multiple" else "ox",
                     "question": q["question"],
-                    "options": q["options"],  # JSON으로 변환 불필요
+                    "options": q["options"],
                     "correct_answer": str(q["correctAnswer"]),
                     "explanation": q["explanation"],
-                    "status": "pending"
-                    # exam_date, your_choice, result는 NULL로 (나중에 업데이트)
+                    "quiz_status": "pending",
+                    "topic_status": "pending",
                 }
                 quiz_list.append(quiz_data)
 
@@ -225,5 +241,5 @@ def preprocessing_ai_response(prompt):
     return result
 
 if __name__ == '__main__':
-    print("🟢 Python 서버 시작중...")
+    print("Python 서버 시작중...")
     app.run(debug=True, port=5001)

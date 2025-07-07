@@ -108,19 +108,23 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
       )}
 
       {/* 다음 */}
-      <div
-        className="bg-[#dcdcdc] rounded-lg float-right w-1/6 mt-1 text-xs"
-        onClick={() => {
-          moveNextQuestion();
-          onClickSubmit(
-            selectedTopic.questions[questionIndex].id,
-            selectedAnswer, // 선택한 답
-            selectedAnswer === correctAnswer ? 'pass' : 'fail' // result
-          );
-        }}
-      >
-        {'다음'}
-      </div>
+      {isSubmitted && (
+        <div
+          className="bg-[#dcdcdc] rounded-lg float-right w-1/6 mt-1 text-xs"
+          onClick={() => {
+            moveNextQuestion();
+            onClickSubmit(
+              selectedTopic.questions[questionIndex].question_id,
+              selectedTopic.topic_id,
+              selectedAnswer, // 선택한 답
+              selectedAnswer === correctAnswer ? 'pass' : 'fail', // result
+              questionIndex
+            );
+          }}
+        >
+          {'다음'}
+        </div>
+      )}
     </>
   );
 };
