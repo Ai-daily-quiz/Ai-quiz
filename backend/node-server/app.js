@@ -42,6 +42,20 @@ app.post("/api/classify", async (req, res) => {
   }
 });
 
+app.get("/api/quiz/count-pending", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "http://localhost:5001/api/quiz/count-pending",
+      {
+        headers: req.headers,
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("/api/quiz/pending", async (req, res) => {
   try {
     const response = await axios.get("http://localhost:5001/api/quiz/pending", {

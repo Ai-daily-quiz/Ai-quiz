@@ -14,57 +14,91 @@ from cachetools import TTLCache
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
-genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(url, key)
 
-model = genai.GenerativeModel('gemini-2.0-flash')
+model = genai.GenerativeModel("gemini-2.0-flash")
 MAX_TEXT_LENGTH = 10000
 JSON_MARKDOWN_PREFIX_LENGTH = 7
 JSON_MARKDOWN_SUFFIX_LENGTH = 3
 
 cache = TTLCache(maxsize=1, ttl=300)  # 5분간만 캐시
+
+
 def cache_get_topics():
-    if 'topics' not in cache:
-        topics = supabase.table('topics').select("*").execute()
+    if "topics" not in cache:
+        topics = supabase.table("topics").select("*").execute()
         # ... 처리
         topics_ref = []
         category_ref = []
-        for topic in topics.data :
+        for topic in topics.data:
             topic_id = topic["id"]
             topic_prefix = topic_id.split("-")[0]
             topics_ref.append(topic_prefix)
-            category_ref.append(topic['topic'] + " : " +topic['description'])
+            category_ref.append(topic["topic"] + " : " + topic["description"])
 
-        cache['topics'] = (topics_ref, category_ref)
-        print("✅ 캐시 저장 완료")
-        print("✅ category_ref", category_ref)
-        print("✅ topics_ref", topics_ref)
+        cache["topics"] = (topics_ref, category_ref)
     else:
         print("⚡️ 캐시에서 데이터 사용")
 
-    return cache['topics']
+    return cache["topics"]
 
 
 topics_ref, category_ref = cache_get_topics()
 
+
 def verify_token_and_get_uuid(token):
     try:
         decoded = jwt.decode(token, options={"verify_signature": False})
-        return decoded['sub']
+        return decoded["sub"]
     except:
         return None
 
-@app.route('/api/quiz/pending', methods=['GET'])
+
+@app.route("/api/quiz/count-pending", methods=["GET"])
+def count_pending_quiz():
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "")
+    try:
+        userInfo = supabase.auth.get_user(token)
+        user_id = userInfo.user.id
+        response = (
+            supabase.table("quizzes")
+            .select("*", count="exact")
+            .eq("user_id", user_id)
+            .eq("quiz_status", "pending")
+            .execute()
+        )
+
+        return jsonify(
+            {
+                "success": True,
+                "pending_count": response.count,
+            }
+        )
+
+    except Exception as e:
+        print("에러 : ", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/quiz/pending", methods=["GET"])
 def get_pending_quiz():
-    auth_header = request.headers.get('Authorization', '')
-    token = auth_header.replace('Bearer ', '')
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "")
     try:
         userInfo = supabase.auth.get_user(token)
         user_id = userInfo.user.id
 
-        response = supabase.table('quizzes').select("*").eq("user_id",user_id).eq("quiz_status","pending").execute()
+        response = (
+            supabase.table("quizzes")
+            .select("*")
+            .eq("user_id", user_id)
+            .eq("quiz_status", "pending")
+            .execute()
+        )
 
         category_group = {}
         for quiz in response.data:
@@ -73,87 +107,90 @@ def get_pending_quiz():
 
             if category not in category_group:
                 category_group[category] = {
-                    'category': category,
-                    'topic_id': topic_id,
-                    'questions': []
+                    "category": category,
+                    "topic_id": topic_id,
+                    "questions": [],
                 }
-            category_group[category]['questions'].append(quiz)
+            category_group[category]["questions"].append(quiz)
         category_list = list(category_group.values())
 
-        return jsonify({
-            "success": True,
-            "result": category_list
-        })
+        return jsonify(
+            {
+                "success": True,
+                "result": category_list,
+                "pending_count": len(response.data),
+            }
+        )
 
     except Exception as e:
-        print("에러 : ",e)
-        return jsonify({'error': str(e)}), 500
+        print("에러 : ", e)
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/quiz/submit', methods=['POST'])
+@app.route("/api/quiz/submit", methods=["POST"])
 def submit_quiz():
-    auth_header = request.headers.get('Authorization', '')
-    token = auth_header.replace('Bearer ', '')
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "")
     userInfo = supabase.auth.get_user(token)
 
     data = request.get_json()
     if not data:
-        return jsonify({'error': 'No data provieded'}), 400
-    quiz_id = data.get('quizId')
-    if len(quiz_id) > 50 :
-        return jsonify({'error': 'Invalid quiz_id'}), 400
-    topic_id = data.get('topicId')
-    if len(topic_id) > 50 :
-        return jsonify({'error': 'Invalid topic_id'}), 400
-    user_choice = data.get('userChoice')
-    result = data.get('result')
-    questionIndex = data.get('questionIndex')
+        return jsonify({"error": "No data provieded"}), 400
+    quiz_id = data.get("quizId")
+    if len(quiz_id) > 50:
+        return jsonify({"error": "Invalid quiz_id"}), 400
+    topic_id = data.get("topicId")
+    if len(topic_id) > 50:
+        return jsonify({"error": "Invalid topic_id"}), 400
+    user_choice = data.get("userChoice")
+    result = data.get("result")
+    questionIndex = data.get("questionIndex")
 
     try:
-      userInfo = supabase.auth.get_user(token)
+        userInfo = supabase.auth.get_user(token)
 
-      supabase.table("quizzes").update({
-          "exam_date": "now()",
-          "your_choice": user_choice,
-          "result": result,
-          "quiz_status": "done",
-      }).eq("user_id",userInfo.user.id).eq("quiz_id",quiz_id).execute()
-      print("🟢 questionIndex : ",questionIndex)
-      print("🟢 topic_id : ",topic_id)
+        supabase.table("quizzes").update(
+            {
+                "exam_date": "now()",
+                "your_choice": user_choice,
+                "result": result,
+                "quiz_status": "done",
+            }
+        ).eq("user_id", userInfo.user.id).eq("quiz_id", quiz_id).execute()
+        print("🟢 questionIndex : ", questionIndex)
+        print("🟢 topic_id : ", topic_id)
 
-      supabase.table("quizzes").update({
-          "topic_status": "done" if questionIndex == 1 else "pending",
-      }).eq("user_id",userInfo.user.id).eq("topic_id",topic_id).execute()
+        supabase.table("quizzes").update(
+            {
+                "topic_status": "done" if questionIndex == 1 else "pending",
+            }
+        ).eq("user_id", userInfo.user.id).eq("topic_id", topic_id).execute()
 
-
-      return jsonify({
-              'success': True,
-              'message': '퀴즈 결과가 저장되었습니다.'
-          })
-
+        return jsonify({"success": True, "message": "퀴즈 결과가 저장되었습니다."})
 
     except Exception as e:
-        print("에러 : ",e)
-        return jsonify({'error': str(e)}), 500
+        print("에러 : ", e)
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/api/analyze', methods=['POST'])
+
+@app.route("/api/analyze", methods=["POST"])
 def analyze_text():
-    auth_header = request.headers.get('Authorization', '')
-    token = auth_header.replace('Bearer ', '')
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "")
     userInfo = supabase.auth.get_user(token)
     user_id = userInfo.user.id
     if not user_id:
-        return jsonify({'error': 'Invalid token'}), 401
+        return jsonify({"error": "Invalid token"}), 401
 
     try:
         request_data = request.get_json()
         now = datetime.now()
         formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
 
-        if not request_data or 'text' not in request_data:
+        if not request_data or "text" not in request_data:
             return jsonify({"error": "No text provided"}), 400
 
-        input_text = request_data['text']
+        input_text = request_data["text"]
         # 데이터 클렌징 위치
         text = preprocessing_clipBoard_text(input_text)
 
@@ -234,51 +271,52 @@ def analyze_text():
         if quiz_list:
             supabase.table("quizzes").insert(quiz_list).execute()
 
-        return jsonify({
-            "success": True,
-            "result": result
-        })
+        return jsonify({"success": True, "result": result})
 
     except Exception as e:
         print(f"Error: {e}")
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 def preprocessing_clipBoard_text(text):
     original_length = len(text)
-    while '  ' in text : # 2공백 => 1공백
-        text = text.replace('  ', ' ')
+    while "  " in text:  # 2공백 => 1공백
+        text = text.replace("  ", " ")
 
     processed_length = len(text)
     print(f"original_length : {original_length}")
     print(f"processed_length : {processed_length}")
 
-    while '\n\n\n\n' in text: # 4줄바꿈 => 1줄바꿈
-        text = text.replace('\n\n\n\n', '\n')
-    while '\n\n\n' in text: # 4줄바꿈 => 1줄바꿈
-        text = text.replace('\n\n\n', '\n')
-    while '\n\n' in text: # 4줄바꿈 => 1줄바꿈
-        text = text.replace('\n\n', '\n')
+    while "\n\n\n\n" in text:  # 4줄바꿈 => 1줄바꿈
+        text = text.replace("\n\n\n\n", "\n")
+    while "\n\n\n" in text:  # 4줄바꿈 => 1줄바꿈
+        text = text.replace("\n\n\n", "\n")
+    while "\n\n" in text:  # 4줄바꿈 => 1줄바꿈
+        text = text.replace("\n\n", "\n")
 
-    text = text.strip() # 좌우 공백
-    text = text.replace('\t', ' ') #탭 => 공백하나
+    text = text.strip()  # 좌우 공백
+    text = text.replace("\t", " ")  # 탭 => 공백하나
 
     return text
+
 
 def preprocessing_ai_response(prompt):
     response = model.generate_content(prompt)
     response_text = response.text.strip()
 
-    if response_text.startswith('```json'):
-        response_text = response_text[JSON_MARKDOWN_PREFIX_LENGTH:-JSON_MARKDOWN_SUFFIX_LENGTH]
-    elif response_text.startswith('```'):
-        response_text = response_text[JSON_MARKDOWN_SUFFIX_LENGTH:-JSON_MARKDOWN_SUFFIX_LENGTH]
+    if response_text.startswith("```json"):
+        response_text = response_text[
+            JSON_MARKDOWN_PREFIX_LENGTH:-JSON_MARKDOWN_SUFFIX_LENGTH
+        ]
+    elif response_text.startswith("```"):
+        response_text = response_text[
+            JSON_MARKDOWN_SUFFIX_LENGTH:-JSON_MARKDOWN_SUFFIX_LENGTH
+        ]
 
     result = json.loads(response_text)
     return result
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("Python 서버 시작중...")
     app.run(debug=True, port=5001)

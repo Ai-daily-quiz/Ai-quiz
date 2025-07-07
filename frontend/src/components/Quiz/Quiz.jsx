@@ -1,5 +1,3 @@
-// import { Button } from './Button/Button';
-
 import { useState } from 'react';
 
 export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
@@ -19,6 +17,7 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
     // 제출 후
     // 정답 #20d46e
     if (index === correctAnswer) {
+      setIsTopicComplete;
       return 'bg-green-100 border-2 border-green-500 m-3 p-3 rounded-xl text-xs';
     }
 
