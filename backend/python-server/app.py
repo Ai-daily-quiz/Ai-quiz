@@ -31,17 +31,12 @@ category_ref = []
 for topic in topics.data:
     category_ref.append(topic['topic'] + " : " +topic['description'])
 
-# categories = ["문화/예술", "경제/경영", "엔터테인먼트", "음식/요리", "게임", "일반상식", "지리", "역사", "IT/기술", "언어/문학", "의학/건강", "자연/환경", "정치/사회", "과학", "스포츠"]
-
-
 def verify_token_and_get_uuid(token):
     try:
-        # 서명 검증 없이 디코드 (Supabase가 이미 검증)
         decoded = jwt.decode(token, options={"verify_signature": False})
         return decoded['sub']  # user UUID
     except:
         return None
-
 
 @app.route('/api/quiz/pending', methods=['GET'])
 def get_pending_quiz():
@@ -75,7 +70,7 @@ def submit_quiz():
     try:
       userInfo = supabase.auth.get_user(token)
 
-      response = supabase.table("quizzes").update({
+      supabase.table("quizzes").update({
           "exam_date": "now()",
           "your_choice": user_choice,
           "result": result,
@@ -101,16 +96,16 @@ def analyze_text():
         return jsonify({'error': 'Invalid token'}), 401
 
     try:
-        clipboard = request.get_json()
+        request_data = request.get_json()
         now = datetime.now()
         formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
 
-        if not clipboard or 'text' not in clipboard:
+        if not request_data or 'text' not in request_data:
             return jsonify({"error": "No text provided"}), 400
 
-        text = clipboard['text']
+        input_text = request_data['text']
         # 데이터 클렌징 위치
-        text = cleanse_text(text)
+        text = preprocessing_clipBoard_text(input_text)
 
         prompt = f"""
         다음 텍스트를 분석해서 아래 카테고리 중 가장 적합한 4개의 세부 주제 선택해서 제시해줘.
@@ -159,16 +154,16 @@ def analyze_text():
         }}
         """
 
-        response = model.generate_content(prompt)
-        response_text = response.text.strip()
+        result = preprocessing_ai_response(prompt)
+        # response = model.generate_content(prompt)
+        # response_text = response.text.strip()
 
-        # JSON 블록 처리
-        if response_text.startswith('```json'):
-            response_text = response_text[7:-3]
-        elif response_text.startswith('```'):
-            response_text = response_text[3:-3]
+        # if response_text.startswith('```json'):
+        #     response_text = response_text[7:-3]
+        # elif response_text.startswith('```'):
+        #     response_text = response_text[3:-3]
 
-        result = json.loads(response_text)
+        # result = json.loads(response_text)
         quiz_list = []
 
         for topic in result["topics"]:
@@ -205,7 +200,7 @@ def analyze_text():
             "error": str(e)
         }), 500
 
-def cleanse_text(text):
+def preprocessing_clipBoard_text(text):
     original_length = len(text)
     while '  ' in text : # 2공백 => 1공백
         text = text.replace('  ', ' ')
@@ -226,6 +221,17 @@ def cleanse_text(text):
 
     return text
 
+def preprocessing_ai_response(prompt):
+    response = model.generate_content(prompt)
+    response_text = response.text.strip()
+
+    if response_text.startswith('```json'):
+        response_text = response_text[7:-3]
+    elif response_text.startswith('```'):
+        response_text = response_text[3:-3]
+
+    result = json.loads(response_text)
+    return result
 
 if __name__ == '__main__':
     print("🟢 Python 서버 시작중...")
