@@ -90,8 +90,8 @@ def submit_quiz():
 def analyze_text():
     auth_header = request.headers.get('Authorization', '')
     token = auth_header.replace('Bearer ', '')
-    user_id = verify_token_and_get_uuid(token)
-    print("user_id : ",user_id)
+    userInfo = supabase.auth.get_user(token)
+    user_id = userInfo.user.id
     if not user_id:
         return jsonify({'error': 'Invalid token'}), 401
 
@@ -155,15 +155,6 @@ def analyze_text():
         """
 
         result = preprocessing_ai_response(prompt)
-        # response = model.generate_content(prompt)
-        # response_text = response.text.strip()
-
-        # if response_text.startswith('```json'):
-        #     response_text = response_text[7:-3]
-        # elif response_text.startswith('```'):
-        #     response_text = response_text[3:-3]
-
-        # result = json.loads(response_text)
         quiz_list = []
 
         for topic in result["topics"]:
