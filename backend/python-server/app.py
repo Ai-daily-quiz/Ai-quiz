@@ -7,7 +7,9 @@ import os
 from datetime import datetime
 from supabase import create_client, Client
 import jwt
-import uuid
+from functools import lru_cache
+from cachetools import TTLCache
+
 
 load_dotenv()
 app = Flask(__name__)
@@ -17,24 +19,40 @@ url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_SERVICE_KEY")
 supabase: Client = create_client(url, key)
 
-model = genai.GenerativeModel('gemini-2.0-flash') # 문제 출제 ?
+model = genai.GenerativeModel('gemini-2.0-flash')
+MAX_TEXT_LENGTH = 10000
+JSON_MARKDOWN_PREFIX_LENGTH = 7
+JSON_MARKDOWN_SUFFIX_LENGTH = 3
 
-topics_id = supabase.table('topics').select("id").execute()
-topics_ref = []
-for row in topics_id.data :
-    topic_id = row["id"]
-    topic_prefix = topic_id.split("-")[0]
-    topics_ref.append(topic_prefix)
+cache = TTLCache(maxsize=1, ttl=300)  # 5분간만 캐시
+def cache_get_topics():
+    if 'topics' not in cache:
+        topics = supabase.table('topics').select("*").execute()
+        # ... 처리
+        topics_ref = []
+        category_ref = []
+        for topic in topics.data :
+            topic_id = topic["id"]
+            topic_prefix = topic_id.split("-")[0]
+            topics_ref.append(topic_prefix)
+            category_ref.append(topic['topic'] + " : " +topic['description'])
 
-topics = supabase.table('topics').select("*").execute()
-category_ref = []
-for topic in topics.data:
-    category_ref.append(topic['topic'] + " : " +topic['description'])
+        cache['topics'] = (topics_ref, category_ref)
+        print("✅ 캐시 저장 완료")
+        print("✅ category_ref", category_ref)
+        print("✅ topics_ref", topics_ref)
+    else:
+        print("⚡️ 캐시에서 데이터 사용")
+
+    return cache['topics']
+
+
+topics_ref, category_ref = cache_get_topics()
 
 def verify_token_and_get_uuid(token):
     try:
         decoded = jwt.decode(token, options={"verify_signature": False})
-        return decoded['sub']  # user UUID
+        return decoded['sub']
     except:
         return None
 
@@ -76,10 +94,17 @@ def get_pending_quiz():
 def submit_quiz():
     auth_header = request.headers.get('Authorization', '')
     token = auth_header.replace('Bearer ', '')
+    userInfo = supabase.auth.get_user(token)
 
     data = request.get_json()
-    quiz_id = data.get('quizId')      # Python에서는 이렇게 추출
-    topic_id = data.get('topicId')      # Python에서는 이렇게 추출
+    if not data:
+        return jsonify({'error': 'No data provieded'}), 400
+    quiz_id = data.get('quizId')
+    if len(quiz_id) > 50 :
+        return jsonify({'error': 'Invalid quiz_id'}), 400
+    topic_id = data.get('topicId')
+    if len(topic_id) > 50 :
+        return jsonify({'error': 'Invalid topic_id'}), 400
     user_choice = data.get('userChoice')
     result = data.get('result')
     questionIndex = data.get('questionIndex')
@@ -133,11 +158,11 @@ def analyze_text():
         text = preprocessing_clipBoard_text(input_text)
 
         prompt = f"""
-        다음 텍스트를 분석해서 아래 카테고리 중 중복되지 않는 가장 적합한 서로 다른 4개의 주제를 제시해줘.
+         **중요 다음 텍스트를 분석해서 아래 카테고리 중 중복되지 않는 가장 적합한 서로 다른 4개의 주제를 제시해줘.
         각 카테고리 분류기준을 참고해서 구체적인 세부 주제를 생성해줘.
-        카테고리 분류기준 : {category_ref}
+        카테고리 분류기준 : {category_ref}**
 
-        텍스트: {text[:10000]}
+        텍스트: {text[:MAX_TEXT_LENGTH]}
 
         아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
         id는 영어와 숫자의 조합으로 만들어주고. {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
@@ -247,9 +272,9 @@ def preprocessing_ai_response(prompt):
     response_text = response.text.strip()
 
     if response_text.startswith('```json'):
-        response_text = response_text[7:-3]
+        response_text = response_text[JSON_MARKDOWN_PREFIX_LENGTH:-JSON_MARKDOWN_SUFFIX_LENGTH]
     elif response_text.startswith('```'):
-        response_text = response_text[3:-3]
+        response_text = response_text[JSON_MARKDOWN_SUFFIX_LENGTH:-JSON_MARKDOWN_SUFFIX_LENGTH]
 
     result = json.loads(response_text)
     return result
