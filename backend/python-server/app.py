@@ -46,10 +46,25 @@ def get_pending_quiz():
         userInfo = supabase.auth.get_user(token)
         user_id = userInfo.user.id
 
-        response = supabase.table('quizzes').select("question").eq("user_id",user_id).eq("quiz_status","pending").execute()
+        response = supabase.table('quizzes').select("*").eq("user_id",user_id).eq("quiz_status","pending").execute()
+
+        category_group = {}
+        for quiz in response.data:
+            category = quiz["category"]
+            topic_id = quiz["topic_id"]
+
+            if category not in category_group:
+                category_group[category] = {
+                    'category': category,
+                    'topic_id': topic_id,
+                    'questions': []
+                }
+            category_group[category]['questions'].append(quiz)
+        category_list = list(category_group.values())
+
         return jsonify({
             "success": True,
-            "result": response.data
+            "result": category_list
         })
 
     except Exception as e:
@@ -130,9 +145,9 @@ def analyze_text():
 
         - 객관식: "category(영어)-YYMMDD-HHMMSS-mc"
         - OX문제: "category(영어)-YYMMDD-HHMMSS-ox"
-        **중요: topic_id 와 question_id 는 반드시
+        **중요: topic_id 와 quiz_id 는 반드시
         topic_id : technology(영어)-YYMMDD-HHMMSS
-        question_id : category(영어)-mc-YYMMDD-HHMMSS
+        quiz_id : category(영어)-mc-YYMMDD-HHMMSS
         ** 형식을 지키고,
         category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
         주제당 객관식 하나 OX 하나 만들어줘.
@@ -147,7 +162,7 @@ def analyze_text():
             "description": "...",
             "questions": [
             {{
-                "question_id": "technology-mc-240702-193156",
+                "quiz_id": "technology-mc-240702-193156",
                 "type": "multiple",
                 "question": "...",
                 "options": [...],
@@ -155,7 +170,7 @@ def analyze_text():
                 "explanation": "..."
             }},
             {{
-                "question_id": "technology-240702-193156-ox-001",
+                "quiz_id": "technology-240702-193156-ox-001",
                 "type": "ox",
                 "question": "...",
                 "options": ["O", "X"]
@@ -177,10 +192,10 @@ def analyze_text():
 
             for q in topic["questions"]:
                 quiz_data = {
-                    "quiz_id": q["question_id"],
+                    "quiz_id": q["quiz_id"],
                     "topic_id": topic_id,
                     "user_id": user_id,
-                    "topic": category,
+                    "category": category,
                     "quiz_type": "multiple_choice" if q["type"] == "multiple" else "ox",
                     "question": q["question"],
                     "options": q["options"],

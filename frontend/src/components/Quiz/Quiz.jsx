@@ -8,7 +8,6 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const correctAnswer = selectedTopic.questions[questionIndex].correctAnswer; // 객관식 답
 
-  console.log(selectedTopic.questions.length);
   // setIsTopicComplete(false);
   const getOptionStyle = index => {
     // 제출 전
@@ -33,19 +32,12 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
   const handleAnswer = index => {
     setIsSubmitted(true);
     setSelectedAnswer(index);
-    console.log('내 선택 : ', index + 1);
-    if (index === selectedAnswer) {
-      console.log('정답');
-    } else {
-      console.log('오답');
-    }
   };
   const moveNextQuestion = () => {
     if (questionIndex === 1) {
       setIsTopicComplete(true);
       return;
     }
-    console.log('move next question');
     setSelectedAnswer(null);
     setIsSubmitted(false);
     setQuestionIndex(questionIndex + 1);
@@ -114,7 +106,7 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
           onClick={() => {
             moveNextQuestion();
             onClickSubmit(
-              selectedTopic.questions[questionIndex].question_id,
+              selectedTopic.questions[questionIndex].quiz_id,
               selectedTopic.topic_id,
               selectedAnswer, // 선택한 답
               selectedAnswer === correctAnswer ? 'pass' : 'fail', // result

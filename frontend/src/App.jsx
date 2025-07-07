@@ -47,7 +47,10 @@ function App() {
         }
       );
 
-      console.log('풀던 퀴즈 리스트:', response.data);
+      console.log('풀던 퀴즈 리스트:', response.data.result);
+      // topicCards 랜더링
+      setTopics(response.data.result);
+      setIsTopicCards(true);
     } catch (error) {
       console.error('퀴즈 가져오기 오류:', error);
     }
@@ -173,6 +176,8 @@ function App() {
           />
         </div>
       )}
+      {/* 풀다 만 퀴즈가 있어요! */}
+      {}
       {!selectedTopic && isTopicCards && (
         <TopicCards topics={topics} onTopicSelect={handleSelectedTopic} />
       )}
