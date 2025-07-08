@@ -1,7 +1,13 @@
 import { TopicCard } from './TopicCard/TopicCard';
 
-export const TopicCards = ({ topics, onTopicSelect, setIsPreview }) => {
+export const TopicCards = ({
+  topics,
+  onTopicSelect,
+  setIsPreview,
+  handleQuizStart,
+}) => {
   setIsPreview(false);
+  handleQuizStart;
   const handleTopic = topic => {
     console.log('topic', topic);
     onTopicSelect(topic);

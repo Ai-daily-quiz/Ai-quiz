@@ -17,14 +17,14 @@ function App() {
   const [isTopicComplete, setIsTopicComplete] = useState(false);
   const [isPendingQuestion, setIsPendingQuestion] = useState(null);
   const [user, setUser] = useState(null);
+  const [showPendingButton, setShowPendingButton] = useState(true);
 
   useEffect(() => {
     // 현재 세션 확인
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      console.log('로그인 확인');
       countPending();
-    });
+    }, []);
 
     // 인증 상태 변화 감지
     const {
@@ -37,6 +37,7 @@ function App() {
   }, []);
 
   const countPending = async () => {
+    // 최초 로그인시 동작
     try {
       const {
         data: { session },
@@ -51,7 +52,13 @@ function App() {
         }
       );
       const pendingQuizzes = response.data.pending_count;
-      console.log('진행중인 퀴즈 수:', response.data.pending_count);
+      console.log(
+        '로그인 확인 및 진행중인 퀴즈 수:',
+        response.data.pending_count
+      );
+      console.log(`isPendingQuestion : ${isPendingQuestion}`);
+      console.log(`pendingQuizzes : ${pendingQuizzes}`);
+
       setIsPendingQuestion(pendingQuizzes);
       // setTopics(response.data.result);
       // setIsTopicCards(true);
@@ -60,7 +67,14 @@ function App() {
       console.error('퀴즈 가져오기 오류:', error);
     }
   };
-
+  const handleShowTopics = async () => {
+    console.log('토픽 페이지를 보여주세요');
+    // 로그인 언마운트
+    // 진행중인 퀴즈 버튼 언마운트
+    setShowPendingButton(false);
+    setIsPreview(false);
+    await getPendingQuiz();
+  };
   const getPendingQuiz = async () => {
     try {
       const {
@@ -76,8 +90,8 @@ function App() {
         }
       );
 
-      console.log('진행중인 퀴즈 리스트:', response.data.result);
-      console.log('진행중인 퀴즈 수:', response.data.pending_count);
+      console.log('남은 퀴즈 리스트:', response.data.result);
+      console.log('남은 퀴즈 수:', response.data.pending_count);
       if (response.data.pending_count === 0) {
         setIsTopicCards(false);
         setIsPreview(true);
@@ -86,7 +100,7 @@ function App() {
       setTopics(response.data.result);
       setIsTopicCards(true);
     } catch (error) {
-      console.error('퀴즈 가져오기 오류:', error);
+      console.error('남은 퀴즈 가져오기 오류:', error);
     }
   };
 
@@ -189,9 +203,10 @@ function App() {
           <div>
             <p>안녕하세요, {user.email}!</p>
             <LoginModal />
-            {isPendingQuestion > 0 && !selectedTopic && (
+            {showPendingButton && isPendingQuestion > 0 && !selectedTopic && (
+              // 로그인 상태 && pendingQuestion > 0
               <Button
-                onClick={getPendingQuiz}
+                onClick={handleShowTopics}
                 text={'진행중인 퀴즈가 있어요!'}
               />
             )}
