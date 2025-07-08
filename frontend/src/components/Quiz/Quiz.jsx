@@ -37,10 +37,12 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
       selectedTopic.topic_id,
       selectedAnswer, // 선택한 답
       selectedAnswer === correctAnswer ? 'pass' : 'fail', // result
-      questionIndex
+      questionIndex,
+      selectedTopic.questions.length - 1
     );
+    const nextIndex = questionIndex + 1;
 
-    if (questionIndex === 1) {
+    if (nextIndex >= selectedTopic.questions.length) {
       // debugger;
       setIsTopicComplete(true);
       return;
@@ -48,7 +50,7 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
 
     setSelectedAnswer(null);
     setIsSubmitted(false);
-    setQuestionIndex(questionIndex + 1);
+    setQuestionIndex(nextIndex);
   };
 
   return (

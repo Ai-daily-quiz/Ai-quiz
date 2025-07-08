@@ -145,6 +145,7 @@ def submit_quiz():
     user_choice = data.get("userChoice")
     result = data.get("result")
     questionIndex = data.get("questionIndex")
+    totalIndex = data.get("totalIndex")
 
     try:
         userInfo = supabase.auth.get_user(token)
@@ -162,7 +163,7 @@ def submit_quiz():
 
         supabase.table("quizzes").update(
             {
-                "topic_status": "done" if questionIndex == 1 else "pending",
+                "topic_status": "done" if questionIndex == totalIndex else "pending",
             }
         ).eq("user_id", userInfo.user.id).eq("topic_id", topic_id).execute()
 

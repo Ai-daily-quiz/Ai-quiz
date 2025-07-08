@@ -67,6 +67,7 @@ function App() {
       console.error('퀴즈 가져오기 오류:', error);
     }
   };
+
   const handleShowTopics = async () => {
     console.log('토픽 페이지를 보여주세요');
     // 로그인 언마운트
@@ -75,6 +76,7 @@ function App() {
     setIsPreview(false);
     await getPendingQuiz();
   };
+
   const getPendingQuiz = async () => {
     try {
       const {
@@ -109,7 +111,8 @@ function App() {
     topicId,
     userChoice,
     result,
-    questionIndex
+    questionIndex,
+    totalIndex
   ) => {
     try {
       const {
@@ -124,6 +127,7 @@ function App() {
           userChoice: userChoice,
           result: result,
           questionIndex: questionIndex,
+          totalIndex: totalIndex,
         },
         {
           headers: {
