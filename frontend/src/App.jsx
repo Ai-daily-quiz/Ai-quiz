@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Quiz } from './components/Quiz/Quiz';
 import LoginModal from './components/LoginModal/LoginModal';
 import supabase from './supabase';
+import { Button } from './components/ClipboardPreview/Button/Button';
 
 function App() {
   const [isPreview, setIsPreview] = useState(true);
@@ -77,7 +78,11 @@ function App() {
 
       console.log('진행중인 퀴즈 리스트:', response.data.result);
       console.log('진행중인 퀴즈 수:', response.data.pending_count);
-      // topicCards 랜더링
+      if (response.data.pending_count === 0) {
+        setIsTopicCards(false);
+        setIsPreview(true);
+        return;
+      }
       setTopics(response.data.result);
       setIsTopicCards(true);
     } catch (error) {
@@ -159,10 +164,15 @@ function App() {
   };
 
   useEffect(() => {
-    if (isTopicComplete) {
-      setSelectedTopic(null); // 주제 선택 화면으로 돌아가기
-      setIsTopicComplete(false); // 상태 초기화
-    }
+    const handleTopicComplete = async () => {
+      if (isTopicComplete) {
+        await getPendingQuiz();
+        setSelectedTopic(null); // 주제 선택 화면으로 돌아가기
+        setIsTopicComplete(false); // 상태 초기화
+        // setIsPreview(true);
+      }
+    };
+    handleTopicComplete();
   }, [isTopicComplete]);
 
   useEffect(() => {
@@ -179,6 +189,12 @@ function App() {
           <div>
             <p>안녕하세요, {user.email}!</p>
             <LoginModal />
+            {isPendingQuestion > 0 && !selectedTopic && (
+              <Button
+                onClick={getPendingQuiz}
+                text={'진행중인 퀴즈가 있어요!'}
+              />
+            )}
           </div>
         ) : (
           <div>
@@ -207,9 +223,12 @@ function App() {
         </div>
       )}
       {/* 풀다 만 퀴즈가 있어요! */}
-      {}
       {!selectedTopic && isTopicCards && (
-        <TopicCards topics={topics} onTopicSelect={handleSelectedTopic} />
+        <TopicCards
+          topics={topics}
+          setIsPreview={setIsPreview}
+          onTopicSelect={handleSelectedTopic}
+        />
       )}
     </>
   );

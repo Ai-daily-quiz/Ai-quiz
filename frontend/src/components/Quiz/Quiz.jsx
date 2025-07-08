@@ -17,7 +17,6 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
     // 제출 후
     // 정답 #20d46e
     if (index === correctAnswer) {
-      setIsTopicComplete;
       return 'bg-green-100 border-2 border-green-500 m-3 p-3 rounded-xl text-xs';
     }
 
@@ -32,11 +31,21 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
     setIsSubmitted(true);
     setSelectedAnswer(index);
   };
-  const moveNextQuestion = () => {
+  const moveNextQuestion = async () => {
+    await onClickSubmit(
+      selectedTopic.questions[questionIndex].quiz_id,
+      selectedTopic.topic_id,
+      selectedAnswer, // 선택한 답
+      selectedAnswer === correctAnswer ? 'pass' : 'fail', // result
+      questionIndex
+    );
+
     if (questionIndex === 1) {
+      // debugger;
       setIsTopicComplete(true);
       return;
     }
+
     setSelectedAnswer(null);
     setIsSubmitted(false);
     setQuestionIndex(questionIndex + 1);
@@ -104,13 +113,6 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
           className="bg-[#dcdcdc] rounded-lg float-right w-1/6 mt-1 text-xs"
           onClick={() => {
             moveNextQuestion();
-            onClickSubmit(
-              selectedTopic.questions[questionIndex].quiz_id,
-              selectedTopic.topic_id,
-              selectedAnswer, // 선택한 답
-              selectedAnswer === correctAnswer ? 'pass' : 'fail', // result
-              questionIndex
-            );
           }}
         >
           {'다음'}
