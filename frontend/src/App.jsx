@@ -8,7 +8,7 @@ import supabase from './supabase';
 import { Button } from './components/ClipboardPreview/Button/Button';
 
 function App() {
-  const [isPreview, setIsPreview] = useState(true);
+  const [isPreview, setIsPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTopicCards, setIsTopicCards] = useState(false);
   const [isResponse, setIsResponse] = useState(false);
@@ -190,6 +190,9 @@ function App() {
     // 현재 세션 확인
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        setIsPreview(true);
+      }
       countPending();
     }, []);
 
@@ -197,7 +200,12 @@ function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        setUser(session?.user ?? null);
+      } else {
+        setUser(null);
+        setIsPreview(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -222,7 +230,6 @@ function App() {
         }
         setSelectedTopic(null); // 주제 선택 화면으로 돌아가기
         setIsTopicComplete(false); // 상태 초기화
-        // setIsPreview(true);
       }
     };
     handleTopicComplete();
