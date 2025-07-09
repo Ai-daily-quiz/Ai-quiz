@@ -163,6 +163,8 @@ function App() {
     setIsResponse(true);
     setTopics(response.data.result.topics);
     console.log('LLM 결과 주제 : ', response.data.result.topics);
+    console.log('response.data:', response.data);
+    console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
   };
 
   const handleClipBoardSumbit = () => {
@@ -233,13 +235,13 @@ function App() {
       )}
       {isLoading && 'Loading Indicator'}
       {selectedTopic && (
-        <div className="p-20 bg-gray-100 rounded-2xl">
-          <Quiz
-            selectedTopic={selectedTopic}
-            setIsTopicComplete={setIsTopicComplete}
-            onClickSubmit={submitQuizAnswer}
-          />
-        </div>
+        // <div className="p-20 bg-gray-100 rounded-2xl">
+        <Quiz
+          selectedTopic={selectedTopic}
+          setIsTopicComplete={setIsTopicComplete}
+          onClickSubmit={submitQuizAnswer}
+        />
+        // </div>
       )}
       {/* 풀다 만 퀴즈가 있어요! */}
       {!selectedTopic && isTopicCards && (

@@ -275,7 +275,10 @@ def analyze_text():
         if quiz_list:
             supabase.table("quizzes").insert(quiz_list).execute()
 
-        return jsonify({"success": True, "result": result})
+        return jsonify(
+            {"success": True, "result": result, "total_question": len(quiz_list)}
+        )
+        # return jsonify({"success": True, "result": result})
 
     except Exception as e:
         print(f"Error: {e}")
