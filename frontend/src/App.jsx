@@ -18,23 +18,8 @@ function App() {
   const [isPendingQuestion, setIsPendingQuestion] = useState(null);
   const [user, setUser] = useState(null);
   const [showPendingButton, setShowPendingButton] = useState(true);
-
-  useEffect(() => {
-    // 현재 세션 확인
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      countPending();
-    }, []);
-
-    // 인증 상태 변화 감지
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const [totalQuestion, setTotalQuestion] = useState(null);
+  const [pendingList, setPendingList] = useState(null);
 
   const countPending = async () => {
     // 최초 로그인시 동작
@@ -93,6 +78,7 @@ function App() {
       );
 
       console.log('남은 퀴즈 리스트:', response.data.result);
+      setPendingList(response.data.result);
       console.log('남은 퀴즈 수:', response.data.pending_count);
       if (response.data.pending_count === 0) {
         setIsTopicCards(false);
@@ -101,6 +87,7 @@ function App() {
       }
       setTopics(response.data.result);
       setIsTopicCards(true);
+      setTotalQuestion(response.data.pending_count);
     } catch (error) {
       console.error('남은 퀴즈 가져오기 오류:', error);
     }
@@ -162,6 +149,7 @@ function App() {
     );
     setIsResponse(true);
     setTopics(response.data.result.topics);
+    setTotalQuestion(response.data.total_question);
     console.log('LLM 결과 주제 : ', response.data.result.topics);
     console.log('response.data:', response.data);
     console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
@@ -179,9 +167,40 @@ function App() {
     }
   };
 
-  const handleSelectedTopic = topic => {
+  const handleSelectedTopic = (category, topic) => {
     setSelectedTopic(topic);
+    console.log(pendingList);
+    console.log('선택 category ', category);
+
+    const foundTopic = pendingList.find(
+      element => element.category === category
+    );
+    console.log(foundTopic);
+    if (foundTopic) {
+      const questionsLength = foundTopic.questions.length;
+      console.log('questionsLength :', questionsLength);
+      setTotalQuestion(questionsLength);
+    }
+    // get DB // eq.(카테고리 = 음식)
+    // return
   };
+
+  useEffect(() => {
+    // 현재 세션 확인
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      countPending();
+    }, []);
+
+    // 인증 상태 변화 감지
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleTopicComplete = async () => {
@@ -240,6 +259,7 @@ function App() {
           selectedTopic={selectedTopic}
           setIsTopicComplete={setIsTopicComplete}
           onClickSubmit={submitQuizAnswer}
+          totalQuestion={totalQuestion}
         />
         // </div>
       )}
@@ -249,6 +269,7 @@ function App() {
           topics={topics}
           setIsPreview={setIsPreview}
           onTopicSelect={handleSelectedTopic}
+          pendingList={pendingList}
         />
       )}
     </>

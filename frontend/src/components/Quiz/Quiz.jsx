@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
+export const Quiz = ({
+  selectedTopic,
+  setIsTopicComplete,
+  onClickSubmit,
+  totalQuestion,
+}) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -56,7 +61,10 @@ export const Quiz = ({ selectedTopic, setIsTopicComplete, onClickSubmit }) => {
   return (
     <>
       <div className="p-20 bg-gray-100 rounded-2xl">
-        <div className="text-right">{questionIndex}</div>
+        {/* 문제 index / 전체 문제 수 */}
+        <div className="text-right">
+          {questionIndex + 1 + ' / ' + totalQuestion}
+        </div>
         {/*주제*/}
         <div className="bg-cyan-500/50 mt-3 p-1 rounded-xl">
           {selectedTopic.category}

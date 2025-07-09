@@ -4,13 +4,13 @@ export const TopicCards = ({
   topics,
   onTopicSelect,
   setIsPreview,
-  handleQuizStart,
+  // handleQuizStart,
+  pendingList,
 }) => {
   setIsPreview(false);
-  handleQuizStart;
-  const handleTopic = topic => {
-    console.log('topic', topic);
-    onTopicSelect(topic);
+  // handleQuizStart;
+  const handleTopic = (category, topic) => {
+    onTopicSelect(category, topic);
   };
 
   return (
@@ -22,7 +22,7 @@ export const TopicCards = ({
             <TopicCard
               key={topic.topic_id}
               topic={topic}
-              onClick={() => handleTopic(topic)}
+              onClick={() => handleTopic(topic.category, topic)}
             />
           </div>
         ))}
