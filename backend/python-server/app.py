@@ -198,9 +198,13 @@ def analyze_text():
         prompt = f"""
          **중요 다음 텍스트를 분석해서 적합한 카테고리를 2개 찾아줘.
         찾은 카테고리들은 겹치지 않게 서로 다르게해줘.
-        2개 중 동일한 카테고리가 있으면 모두각각 다르도록 다시 확인해줘.
-        최종적으로 서로 다른 2가지 주제 (총 문제 4개)로 제시해줘.
-        각 카테고리 분류기준을 참고해서 구체적인 세부 주제를 생성해줘.
+
+        카테고리 주제 수 : 서로 다른 2개
+        주제당 퀴즈 문제 수 : 2개
+            - 카테고리 주제 당 ox 문제 수 : 1개
+            - 카테고리 주제 당 multiple a문제 수 : 1개
+        => 전체 총 question 퀴즈 문제 수 4개
+
         카테고리 분류기준 : {category_ref}**
 
         텍스트: {text[:MAX_TEXT_LENGTH]}
@@ -215,7 +219,7 @@ def analyze_text():
         quiz_id : category(영어)-mc-YYMMDD-HHMMSS
         ** 형식을 지키고,
         category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
-        주제당 객관식 하나 OX 하나 만들어줘.
+
         type: multiple의 correctAnswer는 0~3 까지 index랑 동일하게 줘.
         type: ox의 correctAnswer는 0~1 까지 index랑 동일하게 줘. ('O' = index 0)
         {{

@@ -20,6 +20,7 @@ function App() {
   const [showPendingButton, setShowPendingButton] = useState(true);
   const [totalQuestion, setTotalQuestion] = useState(null);
   const [pendingList, setPendingList] = useState(null);
+  const [isNewQuiz, setIsNewQuiz] = useState(false);
 
   const countPending = async () => {
     // 최초 로그인시 동작
@@ -54,10 +55,12 @@ function App() {
   };
 
   const handleShowTopics = async () => {
+    // 진행중인 퀴즈 버튼 클릭시
     console.log('토픽 페이지를 보여주세요');
     // 로그인 언마운트
     // 진행중인 퀴즈 버튼 언마운트
     setShowPendingButton(false);
+    setIsNewQuiz(false);
     setIsPreview(false);
     await getPendingQuiz();
   };
@@ -148,8 +151,9 @@ function App() {
       }
     );
     setIsResponse(true);
+    setIsNewQuiz(true);
     setTopics(response.data.result.topics);
-    setTotalQuestion(response.data.total_question);
+    // setTotalQuestion(response.data.total_question);
     console.log('LLM 결과 주제 : ', response.data.result.topics);
     console.log('response.data:', response.data);
     console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
@@ -169,20 +173,17 @@ function App() {
 
   const handleSelectedTopic = (category, topic) => {
     setSelectedTopic(topic);
-    console.log(pendingList);
-    console.log('선택 category ', category);
 
-    const foundTopic = pendingList.find(
-      element => element.category === category
-    );
+    const foundTopic = topics.find(element => element.category === category);
+    // const foundTopic = pendingList.find(
+    //   element => element.category === category
+    // );
     console.log(foundTopic);
     if (foundTopic) {
       const questionsLength = foundTopic.questions.length;
       console.log('questionsLength :', questionsLength);
       setTotalQuestion(questionsLength);
     }
-    // get DB // eq.(카테고리 = 음식)
-    // return
   };
 
   useEffect(() => {
@@ -205,7 +206,20 @@ function App() {
   useEffect(() => {
     const handleTopicComplete = async () => {
       if (isTopicComplete) {
-        await getPendingQuiz();
+        if (isNewQuiz) {
+          const remainingTopics = topics.filter(
+            topic => topic.category !== selectedTopic.category
+          );
+          setTopics(remainingTopics);
+
+          if (remainingTopics.length === 0) {
+            setIsTopicCards(false);
+            setIsPreview(true);
+            setIsNewQuiz(false);
+          }
+        } else {
+          await getPendingQuiz();
+        }
         setSelectedTopic(null); // 주제 선택 화면으로 돌아가기
         setIsTopicComplete(false); // 상태 초기화
         // setIsPreview(true);
