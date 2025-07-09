@@ -189,8 +189,8 @@ function App() {
   useEffect(() => {
     // 현재 세션 확인
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
       if (session?.user) {
+        setUser(session?.user ?? null);
         setIsPreview(true);
       }
       countPending();
@@ -202,6 +202,7 @@ function App() {
     } = supabase.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
         setUser(session?.user ?? null);
+        setIsPreview(true);
       } else {
         setUser(null);
         setIsPreview(false);
