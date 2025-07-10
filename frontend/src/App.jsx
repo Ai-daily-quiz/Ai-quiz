@@ -259,14 +259,6 @@ function App() {
     }
   }, [isResponse]);
 
-  useEffect(() => {
-    console.log('상태 로그:', {
-      selectedTopic: !!selectedTopic,
-      isTopicCards,
-      isPreview,
-    });
-  }, [selectedTopic, isTopicCards, isPreview]);
-
   return (
     <div className="min-h-screen relative">
       {/* 배경 - 4분할 컬러 영역 */}

@@ -75,7 +75,7 @@ export const Quiz = ({
         </div>
 
         {/*주제*/}
-        <div className="bg-cyan-500/50 p-3 rounded-xl text-center text-lg font-semibold mb-4">
+        <div className="bg-cyan-500/50 p-4 rounded-xl text-center text-lg font-semibold mb-4">
           {selectedTopic.category}
         </div>
 
