@@ -84,7 +84,7 @@ export const Quiz = ({
               (option, index) => (
                 <div
                   key={index}
-                  className="bg-transparent border-2 border-cyan-500 p-4 rounded-xl text-lg cursor-pointer hover:bg-cyan-50 transition-all h-[80px] flex items-center justify-center"
+                  className="relative bg-white border-2 border-cyan-500 p-4 rounded-xl text-lg cursor-pointer transition-all duration-300 h-[80px] flex items-center justify-center hover:shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-cyan-50 hover:to-white hover:border-cyan-600 transform hover:scale-105"
                   onClick={() => handleAnswer(index)}
                 >
                   {option}
