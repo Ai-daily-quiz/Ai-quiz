@@ -173,7 +173,6 @@ function App() {
 
   const handleSelectedTopic = (category, topic) => {
     setSelectedTopic(topic);
-    setIsTopicCards(false);
 
     const foundTopic = topics.find(element => element.category === category);
     // const foundTopic = pendingList.find(
@@ -461,7 +460,7 @@ function App() {
         )}
 
         {!selectedTopic && isTopicCards && (
-          <div className="relative z-20 w-[60vw] mx-auto">
+          <div className="relative z-20 w-full max-w-5xl mx-auto px-4">
             <div className="bg-transparent rounded-3xl p-8">
               <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
                 퀴즈 주제를 선택해주세요
