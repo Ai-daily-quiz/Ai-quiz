@@ -7,6 +7,11 @@ import LoginModal from './components/LoginModal/LoginModal';
 import supabase from './supabase';
 import { Button } from './components/ClipboardPreview/Button/Button';
 
+/**
+ * Main React component for the AI-powered quiz application, handling user authentication, quiz lifecycle, and UI state transitions.
+ *
+ * Manages quiz topic selection, quiz answering, clipboard analysis for new quiz generation, and displays appropriate UI views based on authentication and quiz progress. Integrates with Supabase for authentication and communicates with backend APIs for quiz data and AI analysis.
+ */
 function App() {
   const [isPreview, setIsPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
