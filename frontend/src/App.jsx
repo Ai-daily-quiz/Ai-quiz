@@ -158,6 +158,11 @@ function App() {
     console.log('response.data:', response.data);
     console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
   };
+  const handleEndQuiz = () => {
+    console.log('종료 클릭');
+    // 언마운트할 내용들.
+    setSelectedTopic(null); // 필수 - Quiz 언마운트
+  };
 
   const handleClipBoardSumbit = () => {
     setIsPreview(false);
@@ -458,6 +463,7 @@ function App() {
         {selectedTopic && (
           <div className="animate-slideIn">
             <Quiz
+              clickEnd={handleEndQuiz}
               selectedTopic={selectedTopic}
               setIsTopicComplete={setIsTopicComplete}
               onClickSubmit={submitQuizAnswer}

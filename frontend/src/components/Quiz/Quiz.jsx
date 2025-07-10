@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 export const Quiz = ({
+  clickEnd,
   selectedTopic,
   setIsTopicComplete,
   onClickSubmit,
@@ -61,10 +62,16 @@ export const Quiz = ({
 
   return (
     <>
-      <div className="w-[600px] mx-auto p-10 bg-gray-100 rounded-2xl relative z-20">
+      <div className="w-[600px] mx-auto p-10 bg-gray-100 rounded-2xl relative z-30">
         {/* 문제 index / 전체 문제 수 */}
-        <div className="text-right text-lg mb-4">
-          {questionIndex + 1 + ' / ' + totalQuestion}
+        <div className="flex justify-between text-lg mb-4">
+          <div>{questionIndex + 1 + ' / ' + totalQuestion}</div>
+          <div
+            className="cursor-pointer hover:text-gray-600"
+            onClick={clickEnd}
+          >
+            종료하기
+          </div>
         </div>
 
         {/*주제*/}
