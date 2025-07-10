@@ -1,13 +1,10 @@
+import { useEffect } from 'react';
 import { TopicCard } from './TopicCard/TopicCard';
 
-export const TopicCards = ({
-  topics,
-  onTopicSelect,
-  setIsPreview,
-  // handleQuizStart,
-}) => {
-  setIsPreview(false);
-  // handleQuizStart;
+export const TopicCards = ({ topics, onTopicSelect, setIsPreview }) => {
+  useEffect(() => {
+    setIsPreview(false);
+  }, []);
   const handleTopic = (category, topic) => {
     onTopicSelect(category, topic);
   };

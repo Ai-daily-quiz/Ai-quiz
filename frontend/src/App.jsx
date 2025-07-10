@@ -142,7 +142,7 @@ function App() {
     } = await supabase.auth.getSession();
     // const session = await supabase.auth.getSession();
     const response = await axios.post(
-      'http://localhost:4000/api/message',
+      'http://localhost:4000/api/analyze',
       payload,
       {
         headers: {
@@ -173,6 +173,7 @@ function App() {
 
   const handleSelectedTopic = (category, topic) => {
     setSelectedTopic(topic);
+    setIsTopicCards(false);
 
     const foundTopic = topics.find(element => element.category === category);
     // const foundTopic = pendingList.find(
@@ -191,7 +192,9 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session?.user ?? null);
-        setIsPreview(true);
+        if (!selectedTopic && !isTopicCards) {
+          setIsPreview(true);
+        }
       }
       countPending();
     }, []);
@@ -202,7 +205,9 @@ function App() {
     } = supabase.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
         setUser(session?.user ?? null);
-        setIsPreview(true);
+        if (!selectedTopic && !isTopicCards) {
+          setIsPreview(true);
+        }
       } else {
         setUser(null);
         setIsPreview(false);
@@ -242,6 +247,14 @@ function App() {
       setIsTopicCards(true);
     }
   }, [isResponse]);
+
+  useEffect(() => {
+    console.log('상태 로그:', {
+      selectedTopic: !!selectedTopic,
+      isTopicCards,
+      isPreview,
+    });
+  }, [selectedTopic, isTopicCards, isPreview]);
 
   return (
     <div className="min-h-screen relative">
@@ -348,7 +361,7 @@ function App() {
         )}
       </div>
       <div className="container mx-auto px-4">
-        {isPreview && (
+        {!selectedTopic && !isTopicCards && isPreview && (
           <div className="animate-fadeIn max-w-4xl mx-auto relative z-20">
             <div className="relative">
               {/* 배경 블러 효과 */}
@@ -410,27 +423,27 @@ function App() {
             {/* 3개의 점이 튀는 애니메이션 */}
             <div className="flex space-x-2 mb-8">
               <div
-                className="w-4 h-4 bg-orange-500 rounded-full animate-bounce"
+                className="w-4 h-4 bg-orange-600 rounded-full animate-bounce"
                 style={{ animationDelay: '0ms' }}
               ></div>
               <div
-                className="w-4 h-4 bg-emerald-500 rounded-full animate-bounce"
+                className="w-4 h-4 bg-emerald-600 rounded-full animate-bounce"
                 style={{ animationDelay: '150ms' }}
               ></div>
               <div
-                className="w-4 h-4 bg-purple-500 rounded-full animate-bounce"
+                className="w-4 h-4 bg-purple-600 rounded-full animate-bounce"
                 style={{ animationDelay: '300ms' }}
               ></div>
             </div>
 
             {/* 텍스트 */}
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <h3 className="text-2xl font-bold  mb-2">
               AI가 퀴즈를 만들고 있어요
             </h3>
             <p>잠시만 기다려주세요...</p>
 
             {/* 프로그레스 바 */}
-            <div className="w-64 h-2 bg-gray-300 rounded-full mt-6 overflow-hidden">
+            <div className="w-64 h-2 bg-gray-400 rounded-full mt-6 overflow-hidden">
               <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full animate-pulse"></div>
             </div>
           </div>
