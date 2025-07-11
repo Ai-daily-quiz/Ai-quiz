@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import './ClipboardPreview.css';
 import { Button } from './Button/Button';
 import { Textarea } from './Button/Textarea';
@@ -10,6 +10,7 @@ export const ClipboardPreview = ({
   isPendingQuestion,
 }) => {
   const [preview, setPreview] = useState(null);
+  const inputRef = useRef(null);
   const myClipBoard = navigator.clipboard;
 
   const handleClipBoard = () => {
@@ -23,22 +24,27 @@ export const ClipboardPreview = ({
     setPreview(slicedText);
     analyzeClipboard(clipText);
   };
+  const handlePDFupload = async () => {
+    inputRef.current.click();
+  };
 
   return (
     <>
       <div>
         <Button onClick={handlePreview} text={'클립보드 미리보기'} />
+        <Button onClick={handlePDFupload} text={'파일 업로드'} />
+        <input
+          type="file"
+          accept="image/*"
+          ref={inputRef}
+          // onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
       </div>
       <div>
         <Textarea preview={preview} />
       </div>
       <div>
-        {/* {isPendingQuestion > 0 && (
-          <Button
-            onClick={() => onGetQuizzes()}
-            text={'진행중인 퀴즈가 있어요!'}
-          />
-        )} */}
         <Button onClick={handleClipBoard} text={'새 퀴즈 생성하기'} />
       </div>
     </>

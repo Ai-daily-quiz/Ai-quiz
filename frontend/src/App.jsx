@@ -21,6 +21,32 @@ function App() {
   const [pendingList, setPendingList] = useState(null);
   const [isNewQuiz, setIsNewQuiz] = useState(false);
 
+  const handlePDFUpload = async event => {
+    const file = event.target.files[0];
+    if (!file || file.type !== 'application/pdf') return;
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    try {
+      const response = await axios.post(
+        'http://localhost:4000/api/analyze-pdf',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      // 퀴즈 결과 처리
+      setTopics(response.data.result.topics);
+    } catch (error) {
+      console.error('PDF 업로드 실패:', error);
+    }
+  };
+
   const countPending = async () => {
     // 최초 로그인시 동작
     try {
@@ -274,7 +300,7 @@ function App() {
         <div className=" absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-400 opacity-70">
           <div className="text-right m-10">
             <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-400 opacity-70">
-              <button
+              <button // 홈버튼
                 className="absolute top-4 right-5 bg-white text-gray-700 px-1.5 py-1.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 flex items-center gap-2"
                 onClick={() => {
                   window.location.href = '/';
