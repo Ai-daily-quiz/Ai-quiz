@@ -6,6 +6,9 @@ const LoginModal = ({ user }) => {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
     if (error) console.error('로그인 에러:', error);
@@ -17,6 +20,9 @@ const LoginModal = ({ user }) => {
       options: {
         scopes: ['profile_nickname', 'profile_image'],
         redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
     if (error) console.error('로그인 에러:', error);
