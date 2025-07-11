@@ -44,7 +44,30 @@ export const ClipboardPreview = ({ analyzeClipboard, onSubmit }) => {
     <>
       <div className="flex justify-between text-lg mb-4">
         <Button onClick={handlePreview} text={'클립보드 미리보기'} />
-        <Button onClick={handlePDFupload} text={'📁 파일 선택'} />
+
+        <div
+          onClick={handlePDFupload}
+          style={{
+            display: 'flex',
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
+            />
+          </svg>
+
+          <span className="ml-1">파일선택</span>
+        </div>
         <input
           type="file"
           accept="image/*"
@@ -53,9 +76,29 @@ export const ClipboardPreview = ({ analyzeClipboard, onSubmit }) => {
           style={{ display: 'none' }}
         />
       </div>
-      <div className="text-right">{fileName}</div>
-      <div className="bg_hover_text" onClick={handleDeleteFile}>
-        삭제
+      <div className="text-right">
+        <div className="flex items-center justify-end">
+          <span className="text-right underline">{fileName}</span>
+
+          {File && (
+            <button className="p-0 ml-1.5" onClick={handleDeleteFile}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
       <div>
         <Textarea preview={preview} />
