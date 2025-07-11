@@ -1,6 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const multer = require("multer");
+const fs = require("fs");
+const FormData = require("form-data");
+
+const upload = multer({ dest: "uploads/" });
 
 // Express 앱 생성
 const app = express();
@@ -79,6 +84,36 @@ app.post("/api/quiz/submit", async (req, res) => {
     console.log("Python 서버 응답:", response.data);
 
     // 응답을 클라이언트에게 전송
+    res.json(response.data);
+  } catch (error) {
+    console.error("Python 서버 에러:", error.response?.data || error.message);
+    res.status(500).json({
+      error: "Failed to analyze text",
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
+app.post("/api/analyze-file", upload.single("uploadFile"), async (req, res) => {
+  try {
+    console.log("🟢🟢 파일 정보:", req.file);
+    const formData = new FormData();
+    formData.append("file", fs.createReadStream(req.file.path));
+    formData.append("filename", req.file.originalname);
+
+    const authHeader = req.headers.authorization;
+    const response = await axios.post(
+      "http://localhost:5001/api/analyze-file",
+      formData,
+      {
+        headers: {
+          Authorization: authHeader,
+        },
+      }
+    );
+
+    console.log("Python 서버 응답:", response.data);
+
     res.json(response.data);
   } catch (error) {
     console.error("Python 서버 에러:", error.response?.data || error.message);

@@ -20,17 +20,36 @@ function App() {
   const [totalQuestion, setTotalQuestion] = useState(null);
   const [pendingList, setPendingList] = useState(null);
   const [isNewQuiz, setIsNewQuiz] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null); /// 파일선택시 플래그
 
-  const handlePDFUpload = async event => {
-    const file = event.target.files[0];
-    if (!file || file.type !== 'application/pdf') return;
+  // 프리뷰에서 '보내기'를 클릭했을 시 호출 할 함수
+  // express 전달
 
+  const handlePDFUpload = async () => {
+    setIsPreview(false);
+    if (isResponse) {
+      setIsTopicCards(true);
+    } else {
+      // 분석이 완료되지 않은 경우 (!isResponse)
+      setIsLoading(true);
+    }
+    if (!uploadFile) {
+      console.error('업로드할 파일이 없습니다');
+      return;
+    }
+
+    // const file = event.target.files[0];
+    // if (!file || file.type !== 'application/pdf') return;
     const formData = new FormData();
-    formData.append('pdf', file);
+    formData.append('uploadFile', uploadFile);
 
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       const response = await axios.post(
-        'http://localhost:4000/api/analyze-pdf',
+        'http://localhost:4000/api/analyze-file',
         formData,
         {
           headers: {
@@ -39,11 +58,19 @@ function App() {
           },
         }
       );
-
       // 퀴즈 결과 처리
+
+      setIsResponse(true);
+      setIsNewQuiz(true);
       setTopics(response.data.result.topics);
+
+      console.log('LLM 결과 주제 : ', response.data.result.topics);
+      console.log('response.data:', response.data);
+      console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
     } catch (error) {
       console.error('PDF 업로드 실패:', error);
+      console.error('에러 응답:', error.response?.data);
+      console.error('에러 상태:', error.response?.status);
     }
   };
 
@@ -183,6 +210,7 @@ function App() {
     console.log('response.data:', response.data);
     console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
   };
+
   const handleEndQuiz = async () => {
     console.log('종료 클릭');
     // 언마운트할 내용들.
@@ -301,7 +329,7 @@ function App() {
           <div className="text-right m-10">
             <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-400 opacity-70">
               <button // 홈버튼
-                className="absolute top-4 right-5 bg-white text-gray-700 px-1.5 py-1.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 flex items-center gap-2"
+                className="absolute top-4 right-5 bg-white text-gray-700 px-1.5 py-1.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 flex hover:scale-110 transformitems-center gap-2"
                 onClick={() => {
                   window.location.href = '/';
                 }}
@@ -343,7 +371,7 @@ function App() {
               {showPendingButton && isPendingQuestion > 0 && !selectedTopic && (
                 <button
                   onClick={handleShowTopics}
-                  className="bg-white text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200"
+                  className="bg-white text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
                 >
                   진행중인 퀴즈 {isPendingQuestion}개
                 </button>
@@ -464,6 +492,8 @@ function App() {
                   </div>
 
                   <ClipboardPreview
+                    onSendFile={handlePDFUpload}
+                    setUploadFile={setUploadFile}
                     analyzeClipboard={analyzeClipboard}
                     isLoading={isLoading}
                     onSubmit={handleClipBoardSumbit}
