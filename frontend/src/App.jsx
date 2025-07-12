@@ -38,8 +38,6 @@ function App() {
       return;
     }
 
-    // const file = event.target.files[0];
-    // if (!file || file.type !== 'application/pdf') return;
     const formData = new FormData();
     formData.append('uploadFile', uploadFile);
 

@@ -10,7 +10,6 @@ import jwt
 from cachetools import TTLCache
 import PyPDF2
 
-
 load_dotenv()
 app = Flask(__name__)
 CORS(app)

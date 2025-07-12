@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import './ClipboardPreview.css';
 import { Button } from './Button/Button';
 import { Textarea } from './Button/Textarea';
+import { MyDropzone } from './DND';
 
 export const ClipboardPreview = ({
   analyzeClipboard,
@@ -9,12 +10,23 @@ export const ClipboardPreview = ({
   setUploadFile,
   onSendFile,
 }) => {
-  const [preview, setPreview] = useState(null);
   const [fileName, setFileName] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [isFile, setIsFile] = useState(null); /// 파일선택시 플래그
+  const [showClipboard, setShowClipboard] = useState(null); // 클립보드 플래그
+  const [showDropZone, setShowDropZone] = useState(true); // 드랍존 플래그
   const inputRef = useRef(null);
+
   const myClipBoard = navigator.clipboard;
 
+  const handleShowClipboard = () => {
+    setShowClipboard(false);
+    setShowDropZone(true);
+  };
+  const handleShowDropZone = () => {
+    setShowDropZone(false);
+    setShowClipboard(true);
+  };
   const handleClipBoard = () => {
     onSubmit();
   };
@@ -49,36 +61,14 @@ export const ClipboardPreview = ({
 
   return (
     <>
-      <div className="flex justify-between text-lg">
-        <Button onClick={handlePreview} text={'클립보드 미리보기'} />
-
-        <div
-          onClick={handleFileSelect}
-          className="flex items-center px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
-            />
-          </svg>
-          <span className="ml-1 mr-1">파일선택</span>
-        </div>
-        <input
-          type="file"
-          accept="pdf/*"
-          ref={inputRef}
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-        />
+      <div className="flex justify-right text-lg mb-2">
+        {'모드 전환 : '}
+        {showClipboard && (
+          <Button onClick={handleShowClipboard} text={'텍스트'} />
+        )}
+        {showDropZone && (
+          <Button onClick={handleShowDropZone} text={'파일 업로드'} />
+        )}
       </div>
       <div className="text-right">
         <div className="flex items-center justify-end">
@@ -103,12 +93,13 @@ export const ClipboardPreview = ({
           )}
         </div>
       </div>
-      <div>
-        <Textarea preview={preview} />
-      </div>
+      {showClipboard && <Textarea preview={preview} />}
+      {showDropZone && (
+        <MyDropzone setUploadFile={setUploadFile} onSendFile={onSendFile} />
+      )}
       <div>
         <Button onClick={handleClipBoard} text={'새 퀴즈 생성하기'} />
-        <Button onClick={onSendFile} text={'파일 보내기'} />
+        {/* <Button onClick={onSendFile} text={'파일 보내기'} /> */}
       </div>
     </>
   );
