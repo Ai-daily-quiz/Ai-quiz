@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export const ToggleMode = ({ setShowClipboard, setShowDropZone }) => {
-  const [isClipboardMode, setIsClipboardMode] = useState(true);
+  const [isClipboardMode, setIsClipboardMode] = useState(false);
 
   const handleToggle = () => {
     const newMode = !isClipboardMode;
@@ -19,14 +19,14 @@ export const ToggleMode = ({ setShowClipboard, setShowDropZone }) => {
   return (
     <button
       onClick={handleToggle}
-      className={`relative w-20 h-10 mr-3 rounded-full transition-colors duration-300 focus:outline-none hover:outline-none
+      className={`relative w-16 h-8 mr-3 rounded-full transition-colors duration-300 focus:outline-none hover:outline-none
         ${isClipboardMode ? 'bg-blue-500' : 'bg-orange-400'}`}
     >
       {/* 텍스트 모드 (왼쪽) */}
       <div
         className={`absolute left-2 top-1/2 -translate-y-1/2 transition-opacity duration-300 `}
       >
-        <span className="text-white font-bold text-[15px] pl-0.5">Txt</span>
+        <span className="text-white font-bold text-[12px] pl-0.2">Txt</span>
       </div>
 
       {/* 파일 모드 (오른쪽) */}
@@ -36,7 +36,7 @@ export const ToggleMode = ({ setShowClipboard, setShowDropZone }) => {
         }`}
       >
         <svg
-          className="w-6 h-6 text-white mr-0.5"
+          className="w-5 h-5 text-white "
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -50,8 +50,8 @@ export const ToggleMode = ({ setShowClipboard, setShowDropZone }) => {
 
       {/* 슬라이딩 원 */}
       <div
-        className={`absolute top-1/2 -translate-y-1/2 left-1 h-8 w-8 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-          isClipboardMode ? 'translate-x-0' : 'translate-x-10'
+        className={`absolute top-1/2 -translate-y-1/2 left-1 h-6 w-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+          isClipboardMode ? 'translate-x-0' : 'translate-x-8'
         }`}
       />
     </button>

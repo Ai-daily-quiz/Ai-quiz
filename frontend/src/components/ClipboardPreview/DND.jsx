@@ -25,43 +25,43 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
   };
 
   return (
-    <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className=" max-w-6xl bg-blue-50 rounded-lg shadow-lg overflow-hidden">
       <div className="flex flex-col lg:flex-row">
         <div className="flex-1 p-10">
           {/* 드롭존 영역 */}
           <div
             {...getRootProps()}
             className={`
-                border-2 border-dashed rounded-lg p-40 text-center cursor-pointer
+                border-2 border-dashed rounded-lg p-[80px]  text-center cursor-pointer
                 transition-all duration-200 relative
-                ${isDragActive ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'}
+                ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
               `}
           >
             <input {...getInputProps()} />
 
             {/* 드래그 중 오버레이 */}
             {isDragActive && (
-              <div className="absolute inset-0 bg-red-50 bg-opacity-50 rounded-lg flex items-center justify-center">
-                <p className="text-red-600 font-medium">
+              <div className="absolute inset-0 bg-blue-50 bg-opacity-50 rounded-lg flex items-center justify-center">
+                <p className="text-blue-600 font-medium">
                   파일을 여기에 놓으세요
                 </p>
               </div>
             )}
 
             {/* 파일 선택 버튼 */}
-            <button className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center mx-auto mb-4 transition-colors ">
+            <button className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 text-md w-[120px] rounded-md flex items-center mx-auto transition-colors ">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth="1.5"
+                stroke-width="1.5"
                 stroke="currentColor"
-                className="size-6"
+                class="size-6"
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
                 />
               </svg>
               파일 선택

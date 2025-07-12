@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import './ClipboardPreview.css';
 import { Button } from './Button/Button';
-import { Textarea } from './Button/Textarea';
+import { Preview } from './Button/Preview';
 import { MyDropzone } from './DND';
 import { ToggleMode } from './ToggleMode';
 
@@ -14,8 +14,8 @@ export const ClipboardPreview = ({
   const [fileName, setFileName] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isFile, setIsFile] = useState(null); /// 파일선택시 플래그
-  const [showClipboard, setShowClipboard] = useState(null); // 클립보드 플래그
-  const [showDropZone, setShowDropZone] = useState(true); // 드랍존 플래그
+  const [showClipboard, setShowClipboard] = useState(true); // 클립보드 플래그
+  const [showDropZone, setShowDropZone] = useState(null); // 드랍존 플래그
   const inputRef = useRef(null);
 
   const myClipBoard = navigator.clipboard;
@@ -67,7 +67,9 @@ export const ClipboardPreview = ({
           setShowClipboard={setShowClipboard}
           setShowDropZone={setShowDropZone}
         />
-        <Button onClick={handlePreview} text={'클립보드 미리보기'} />
+        {/* {showClipboard && (
+          <Button onClick={handlePreview} text={'클립보드 미리보기'} />
+        )} */}
       </div>
 
       <div className="text-right">
@@ -93,10 +95,19 @@ export const ClipboardPreview = ({
           )}
         </div>
       </div>
-      {showClipboard && <Textarea preview={preview} />}
-      {showDropZone && (
-        <MyDropzone setUploadFile={setUploadFile} onSendFile={onSendFile} />
-      )}
+      <div className="flex justify-center">
+        {showClipboard && (
+          <Preview
+            preview={preview}
+            showClipboard={showClipboard}
+            onClickPreview={handlePreview}
+            setShowClipboard={setShowClipboard}
+          />
+        )}
+        {showDropZone && (
+          <MyDropzone setUploadFile={setUploadFile} onSendFile={onSendFile} />
+        )}
+      </div>
       <div>
         <Button onClick={handleClipBoard} text={'새 퀴즈 생성하기'} />
         {/* <Button onClick={onSendFile} text={'파일 보내기'} /> */}
