@@ -3,6 +3,7 @@ import './ClipboardPreview.css';
 import { Button } from './Button/Button';
 import { Textarea } from './Button/Textarea';
 import { MyDropzone } from './DND';
+import { ToggleMode } from './ToggleMode';
 
 export const ClipboardPreview = ({
   analyzeClipboard,
@@ -61,15 +62,14 @@ export const ClipboardPreview = ({
 
   return (
     <>
-      <div className="flex justify-right text-lg mb-2">
-        {'모드 전환 : '}
-        {showClipboard && (
-          <Button onClick={handleShowClipboard} text={'텍스트'} />
-        )}
-        {showDropZone && (
-          <Button onClick={handleShowDropZone} text={'파일 업로드'} />
-        )}
+      <div className="text-left mb-2 flex items-center">
+        <ToggleMode
+          setShowClipboard={setShowClipboard}
+          setShowDropZone={setShowDropZone}
+        />
+        <Button onClick={handlePreview} text={'클립보드 미리보기'} />
       </div>
+
       <div className="text-right">
         <div className="flex items-center justify-end">
           <span className="text-right underline">{fileName}</span>

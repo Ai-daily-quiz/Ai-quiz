@@ -467,7 +467,7 @@ function App() {
                     </div>
                     {/* 제목 */}
                     <h3 className="text-3xl font-bold text-gray-800 mb-3">
-                      새 퀴즈{' '}
+                      퀴즈{' '}
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
                         만들기
                       </span>
@@ -475,7 +475,11 @@ function App() {
                     {/* 설명 */}
                     <div>
                       <p className="text-gray-600 text-lg max-w-md mx-auto">
-                        클립보드의 내용을 붙여넣고{' '}
+                        ① 클립보드의 내용을 붙여넣거나
+                      </p>
+
+                      <p className="text-gray-600 text-lg max-w-md mx-auto">
+                        ② 파일을 업로드해{' '}
                         <span className="font-semibold text-orange-500">
                           AI
                         </span>
@@ -523,9 +527,7 @@ function App() {
             </div>
 
             {/* 텍스트 */}
-            <h3 className="text-2xl font-bold  mb-2">
-              AI가 퀴즈를 만들고 있어요
-            </h3>
+            <h3 className="text-2xl font-bold  mb-2">퀴즈를 만들고 있어요</h3>
             <p>잠시만 기다려주세요...</p>
 
             {/* 프로그레스 바 */}
