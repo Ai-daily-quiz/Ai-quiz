@@ -59,8 +59,8 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
                 className="size-6"
               >
                 <path
-                  stroke-Linecap="round"
-                  stroke-Linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
                 />
               </svg>
@@ -76,7 +76,7 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
               <p className="text-lg text-left font-semibold ml-3">
                 업로드한 파일:
               </p>
-              <div className="flex items-center p-3 bg-gray-50 rounded">
+              <div className="flex items-center p-3 bg-blue-50 rounded">
                 <svg
                   className="w-5 h-5 text-blue-600 mr-3"
                   fill="currentColor"
@@ -89,7 +89,10 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
                   />
                 </svg>
                 <span className="text-gray-700 mr-1">{file.name}</span>
-                <button className="p-0 ml-1.5" onClick={handleDeleteFile}>
+                <button
+                  className="p-0 ml-1.5 bg-blue-50"
+                  onClick={handleDeleteFile}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"

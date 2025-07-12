@@ -6,7 +6,6 @@ import { ModeSelect } from './Button/ModeDropDown';
 
 export const ClipboardPreview = ({
   analyzeClipboard,
-  onSubmit,
   setUploadFile,
   onSendFile,
 }) => {
@@ -19,18 +18,6 @@ export const ClipboardPreview = ({
 
   const myClipBoard = navigator.clipboard;
 
-  const handleShowClipboard = () => {
-    setShowClipboard(false);
-    setShowDropZone(true);
-  };
-  const handleShowDropZone = () => {
-    setShowDropZone(false);
-    setShowClipboard(true);
-  };
-  const handleClipBoard = () => {
-    onSubmit();
-  };
-
   const handlePreview = async () => {
     // 미리보기 버튼
     const clipText = await myClipBoard.readText();
@@ -39,18 +26,6 @@ export const ClipboardPreview = ({
     analyzeClipboard(clipText);
   };
 
-  const handleFileSelect = () => {
-    inputRef.current.click();
-  };
-
-  const handleFileChange = e => {
-    const file = e.target.files[0];
-    if (file) {
-      setIsFile(true);
-      setFileName(file.name);
-      setUploadFile(file);
-    }
-  };
   const handleDeleteFile = async () => {
     setFileName(null);
     setIsFile(false);
@@ -62,17 +37,10 @@ export const ClipboardPreview = ({
   return (
     <>
       <div className="text-left mb-2 flex justify-center">
-        {/* <ToggleMode
-          setShowClipboard={setShowClipboard}
-          setShowDropZone={setShowDropZone}
-        /> */}
         <ModeSelect
           setShowClipboard={setShowClipboard}
           setShowDropZone={setShowDropZone}
         />
-        {/* {showClipboard && (
-          <Button onClick={handlePreview} text={'클립보드 미리보기'} />
-        )} */}
       </div>
 
       <div className="text-right">
@@ -116,13 +84,11 @@ export const ClipboardPreview = ({
             onClick={onSendFile}
             className="
                 text-right text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500
-                
                 px-3 py-1.5 rounded-full text-sm font-md shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:scale-110 transform"
           >
             퀴즈 만들기
           </button>
         )}
-        {/* <Button onClick={onSendFile} text={'파일 보내기'} /> */}
       </div>
     </>
   );

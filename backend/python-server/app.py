@@ -45,6 +45,90 @@ def cache_get_topics():
     return cache["topics"]
 
 
+def generate_quiz(text, user_id, formatted_date):
+    prompt = f"""
+         **중요 다음 텍스트를 분석해서 적합한 카테고리를 2개 찾아줘.
+        찾은 카테고리들은 겹치지 않게 서로 다른 카테고리들로만 골라줘 **
+
+        카테고리 주제 수 : 서로 다른 4개
+        주제당 퀴즈 문제 수 : 2개
+            - 카테고리 주제 당 ox 문제 수 : 1개
+            - 카테고리 주제 당 multiple a문제 수 : 1개
+        => 전체 총 question 퀴즈 문제 수 8개
+
+        카테고리 분류기준 : {category_ref}**
+
+        텍스트: {text[:MAX_TEXT_LENGTH]}
+
+        아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
+        id는 영어와 숫자의 조합으로 만들어주고. {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
+
+        - 객관식: "category(영어)-YYMMDD-HHMMSS-mc"
+        - OX문제: "category(영어)-YYMMDD-HHMMSS-ox"
+        **중요: topic_id 와 quiz_id 는 반드시
+        topic_id : technology(영어)-YYMMDD-HHMMSS
+        quiz_id : category(영어)-mc-YYMMDD-HHMMSS
+        ** 형식을 지키고,
+        category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
+
+        type: multiple의 correct_answer 0~3 까지 index랑 동일하게 줘.
+        type: ox의 correct_answer 0~1 까지 index랑 동일하게 줘. ('O' = index 0)
+        {{
+        "topics": [
+        {{
+            "topic_id": "technology(영어)-240702-193156",
+            "category": "기술",
+            "title": "기계식 키보드",
+            "description": "...",
+            "questions": [
+            {{
+                "quiz_id": "technology-mc-240702-193156",
+                "type": "multiple",
+                "question": "...",
+                "options": [...],
+                "correct_answer": 3,
+                "explanation": "..."
+            }},
+            {{
+                "quiz_id": "technology-240702-193156-ox-001",
+                "type": "ox",
+                "question": "...",
+                "options": ["O", "X"],
+                "correct_answer": 1,
+                "explanation": "..."
+            }}
+            ]
+        }}
+        ]
+        }}
+        """
+
+    result = preprocessing_ai_response(prompt)
+    quiz_list = []
+
+    for topic in result["topics"]:
+        category = topic["category"]
+        topic_id = topic["topic_id"]
+
+        for q in topic["questions"]:
+            quiz_data = {
+                "quiz_id": q["quiz_id"],
+                "topic_id": topic_id,
+                "user_id": user_id,
+                "category": category,
+                "quiz_type": "multiple_choice" if q["type"] == "multiple" else "ox",
+                "question": q["question"],
+                "options": q["options"],
+                "correct_answer": q["correct_answer"],
+                "explanation": q["explanation"],
+                "quiz_status": "pending",
+                "topic_status": "pending",
+            }
+            quiz_list.append(quiz_data)
+
+    return quiz_list, result
+
+
 topics_ref, category_ref = cache_get_topics()
 
 
@@ -200,86 +284,7 @@ def analyze_file():
             all_text += page.extract_text()
 
         text = preprocessing_clipBoard_text(all_text)
-
-        prompt = f"""
-         **중요 다음 텍스트를 분석해서 적합한 카테고리를 2개 찾아줘.
-        찾은 카테고리들은 겹치지 않게 서로 다른 카테고리들로만 골라줘 **
-
-        카테고리 주제 수 : 서로 다른 4개
-        주제당 퀴즈 문제 수 : 2개
-            - 카테고리 주제 당 ox 문제 수 : 1개
-            - 카테고리 주제 당 multiple a문제 수 : 1개
-        => 전체 총 question 퀴즈 문제 수 8개
-
-        카테고리 분류기준 : {category_ref}**
-
-        텍스트: {text[:MAX_TEXT_LENGTH]}
-
-        아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
-        id는 영어와 숫자의 조합으로 만들어주고. {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
-
-        - 객관식: "category(영어)-YYMMDD-HHMMSS-mc"
-        - OX문제: "category(영어)-YYMMDD-HHMMSS-ox"
-        **중요: topic_id 와 quiz_id 는 반드시
-        topic_id : technology(영어)-YYMMDD-HHMMSS
-        quiz_id : category(영어)-mc-YYMMDD-HHMMSS
-        ** 형식을 지키고,
-        category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
-
-        type: multiple의 correct_answer 0~3 까지 index랑 동일하게 줘.
-        type: ox의 correct_answer 0~1 까지 index랑 동일하게 줘. ('O' = index 0)
-        {{
-        "topics": [
-        {{
-            "topic_id": "technology(영어)-240702-193156",
-            "category": "기술",
-            "title": "기계식 키보드",
-            "description": "...",
-            "questions": [
-            {{
-                "quiz_id": "technology-mc-240702-193156",
-                "type": "multiple",
-                "question": "...",
-                "options": [...],
-                "correct_answer": 3,
-                "explanation": "..."
-            }},
-            {{
-                "quiz_id": "technology-240702-193156-ox-001",
-                "type": "ox",
-                "question": "...",
-                "options": ["O", "X"]
-                "correct_answer": 1,
-                "explanation": "..."
-            }}
-            ]
-        }}
-        ]
-        }}
-        """
-
-        result = preprocessing_ai_response(prompt)
-        quiz_list = []
-
-        for topic in result["topics"]:
-            category = topic["category"]
-            topic_id = topic["topic_id"]
-
-            for q in topic["questions"]:
-                quiz_data = {
-                    "quiz_id": q["quiz_id"],
-                    "topic_id": topic_id,
-                    "user_id": user_id,
-                    "category": category,
-                    "quiz_type": "multiple_choice" if q["type"] == "multiple" else "ox",
-                    "question": q["question"],
-                    "options": q["options"],
-                    "correct_answer": q["correct_answer"],
-                    "explanation": q["explanation"],
-                    "quiz_status": "pending",
-                    "topic_status": "pending",
-                }
-                quiz_list.append(quiz_data)
+        quiz_list, result = generate_quiz(text, user_id, formatted_date)
 
         # 배치 삽입
         if quiz_list:
@@ -288,7 +293,6 @@ def analyze_file():
         return jsonify(
             {"success": True, "result": result, "total_question": len(quiz_list)}
         )
-        # return jsonify({"success": True, "result": result})
 
     except Exception as e:
         print(f"Error: {e}")
@@ -315,86 +319,7 @@ def analyze_text():
         input_text = request_data["text"]
         # 데이터 클렌징 위치
         text = preprocessing_clipBoard_text(input_text)
-
-        prompt = f"""
-         **중요 다음 텍스트를 분석해서 적합한 카테고리를 2개 찾아줘.
-        찾은 카테고리들은 겹치지 않게 서로 다른 카테고리들로만 골라줘 **
-
-        카테고리 주제 수 : 서로 다른 4개
-        주제당 퀴즈 문제 수 : 2개
-            - 카테고리 주제 당 ox 문제 수 : 1개
-            - 카테고리 주제 당 multiple a문제 수 : 1개
-        => 전체 총 question 퀴즈 문제 수 8개
-
-        카테고리 분류기준 : {category_ref}**
-
-        텍스트: {text[:MAX_TEXT_LENGTH]}
-
-        아래 주제 한개의 JSON형식 참고해서 topics 배열로 응답해줘
-        id는 영어와 숫자의 조합으로 만들어주고. {formatted_date} 을 추가하고 second를 하나씩 더해서 만들어줘.
-
-        - 객관식: "category(영어)-YYMMDD-HHMMSS-mc"
-        - OX문제: "category(영어)-YYMMDD-HHMMSS-ox"
-        **중요: topic_id 와 quiz_id 는 반드시
-        topic_id : technology(영어)-YYMMDD-HHMMSS
-        quiz_id : category(영어)-mc-YYMMDD-HHMMSS
-        ** 형식을 지키고,
-        category 영어는 리스트 : {topics_ref} 을 참고해서 만들어줘.
-
-        type: multiple의 correct_answer 0~3 까지 index랑 동일하게 줘.
-        type: ox의 correct_answer 0~1 까지 index랑 동일하게 줘. ('O' = index 0)
-        {{
-        "topics": [
-        {{
-            "topic_id": "technology(영어)-240702-193156",
-            "category": "기술",
-            "title": "기계식 키보드",
-            "description": "...",
-            "questions": [
-            {{
-                "quiz_id": "technology-mc-240702-193156",
-                "type": "multiple",
-                "question": "...",
-                "options": [...],
-                "correct_answer": 3,
-                "explanation": "..."
-            }},
-            {{
-                "quiz_id": "technology-240702-193156-ox-001",
-                "type": "ox",
-                "question": "...",
-                "options": ["O", "X"]
-                "correct_answer": 1,
-                "explanation": "..."
-            }}
-            ]
-        }}
-        ]
-        }}
-        """
-
-        result = preprocessing_ai_response(prompt)
-        quiz_list = []
-
-        for topic in result["topics"]:
-            category = topic["category"]
-            topic_id = topic["topic_id"]
-
-            for q in topic["questions"]:
-                quiz_data = {
-                    "quiz_id": q["quiz_id"],
-                    "topic_id": topic_id,
-                    "user_id": user_id,
-                    "category": category,
-                    "quiz_type": "multiple_choice" if q["type"] == "multiple" else "ox",
-                    "question": q["question"],
-                    "options": q["options"],
-                    "correct_answer": q["correct_answer"],
-                    "explanation": q["explanation"],
-                    "quiz_status": "pending",
-                    "topic_status": "pending",
-                }
-                quiz_list.append(quiz_data)
+        quiz_list, result = generate_quiz(text, user_id, formatted_date)
 
         # 배치 삽입
         if quiz_list:

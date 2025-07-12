@@ -113,10 +113,14 @@ app.post("/api/analyze-file", upload.single("uploadFile"), async (req, res) => {
     );
 
     console.log("Python 서버 응답:", response.data);
+    fs.unlinkSync(req.file.path);
 
     res.json(response.data);
   } catch (error) {
     console.error("Python 서버 에러:", error.response?.data || error.message);
+    if (req.file && req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
     res.status(500).json({
       error: "Failed to analyze text",
       details: error.response?.data || error.message,
