@@ -457,7 +457,7 @@ function App() {
                 {/* 상단 색상 바 */}
                 <div className="h-2 bg-gradient-to-r from-orange-400 via-emerald-400 via-yellow-300 to-purple-400"></div>
 
-                <div className="w-[600px] h-[700px] p-5">
+                <div className="w-[600px] h-[800px] p-5">
                   <div className="text-center mb-2">
                     {/* 아이콘 */}
                     <div className="inline-flex items-center justify-center w-20 h-20 mb-6">
@@ -470,29 +470,17 @@ function App() {
                     <h3 className="text-3xl font-bold text-gray-800 mb-3">
                       퀴즈{' '}
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
-                        생성 방법
+                        만들기
                       </span>
                     </h3>
                     {/* 설명 */}
                     <div>
                       <p className="text-gray-600 text-lg max-w-md mx-auto flex items-center justify-center">
-                        ① 클립보드 내용 붙여넣기&nbsp;
-                        <img
-                          src="/assets/textToggle.png"
-                          style={{ width: 45, height: 25 }}
-                          className="mr-2"
-                          alt=""
-                        />
+                        ① 클립보드 복사 붙여넣기&nbsp;
                       </p>
 
                       <p className="text-gray-600 text-lg max-w-md mx-auto flex items-center justify-center">
                         ② PDF 파일을 업로드하기&nbsp;
-                        <img
-                          src="/assets/fileToggle.png"
-                          style={{ width: 45, height: 23 }}
-                          className="mr-2"
-                          alt=""
-                        />
                       </p>
                       <div className="flex justify-center gap-2 mt-4">
                         <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>

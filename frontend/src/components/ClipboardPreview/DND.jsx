@@ -27,12 +27,12 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
   return (
     <div className=" max-w-6xl bg-blue-50 rounded-lg shadow-lg overflow-hidden">
       <div className="flex flex-col lg:flex-row">
-        <div className="flex-1 p-10">
+        <div className="flex-1 pt-10 pr-10 pl-10 pb-5">
           {/* 드롭존 영역 */}
           <div
             {...getRootProps()}
             className={`
-                border-2 border-dashed rounded-lg p-[80px]  text-center cursor-pointer
+                border-2 border-dashed rounded-lg p-[110px]  text-center cursor-pointer
                 transition-all duration-200 relative
                 ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
               `}
@@ -49,18 +49,18 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
             )}
 
             {/* 파일 선택 버튼 */}
-            <button className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 text-md w-[120px] rounded-md flex items-center mx-auto transition-colors ">
+            <button className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-1 text-md w-[120px] rounded-md flex items-center mx-auto transition-colors ">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
+                strokeWidth="1.5"
                 stroke="currentColor"
-                class="size-6"
+                className="size-6"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  stroke-Linecap="round"
+                  stroke-Linejoin="round"
                   d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
                 />
               </svg>
@@ -72,8 +72,10 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
 
           {/* 업로드된 파일 표시 */}
           {file && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3">업로드된 파일:</h3>
+            <div className="mt-3">
+              <p className="text-lg text-left font-semibold ml-3">
+                업로드한 파일:
+              </p>
               <div className="flex items-center p-3 bg-gray-50 rounded">
                 <svg
                   className="w-5 h-5 text-blue-600 mr-3"
@@ -109,8 +111,18 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
               </div>
             </div>
           )}
-          <div className="text-right mt-2">
-            <Button onClick={onSendFile} text={'퀴즈 생성하기'} />
+          <div className="text-right">
+            {file && (
+              <button
+                onClick={onSendFile}
+                className="
+                text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500
+                
+                px-3 py-1.5 rounded-full text-sm font-md shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:scale-110 transform"
+              >
+                퀴즈 만들기
+              </button>
+            )}
           </div>
         </div>
       </div>

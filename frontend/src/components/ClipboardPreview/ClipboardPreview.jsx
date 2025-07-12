@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react';
 import './ClipboardPreview.css';
-import { Button } from './Button/Button';
 import { Preview } from './Button/Preview';
 import { MyDropzone } from './DND';
-import { ToggleMode } from './ToggleMode';
+import { ModeSelect } from './Button/ModeDropDown';
 
 export const ClipboardPreview = ({
   analyzeClipboard,
@@ -62,8 +61,12 @@ export const ClipboardPreview = ({
 
   return (
     <>
-      <div className="text-left mb-2 flex items-center">
-        <ToggleMode
+      <div className="text-left mb-2 flex justify-center">
+        {/* <ToggleMode
+          setShowClipboard={setShowClipboard}
+          setShowDropZone={setShowDropZone}
+        /> */}
+        <ModeSelect
           setShowClipboard={setShowClipboard}
           setShowDropZone={setShowDropZone}
         />
@@ -101,15 +104,24 @@ export const ClipboardPreview = ({
             preview={preview}
             showClipboard={showClipboard}
             onClickPreview={handlePreview}
-            setShowClipboard={setShowClipboard}
           />
         )}
         {showDropZone && (
           <MyDropzone setUploadFile={setUploadFile} onSendFile={onSendFile} />
         )}
       </div>
-      <div>
-        <Button onClick={handleClipBoard} text={'새 퀴즈 생성하기'} />
+      <div className="text-right mr-8 mt-4">
+        {showClipboard && preview && (
+          <button
+            onClick={onSendFile}
+            className="
+                text-right text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500
+                
+                px-3 py-1.5 rounded-full text-sm font-md shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:scale-110 transform"
+          >
+            퀴즈 만들기
+          </button>
+        )}
         {/* <Button onClick={onSendFile} text={'파일 보내기'} /> */}
       </div>
     </>
