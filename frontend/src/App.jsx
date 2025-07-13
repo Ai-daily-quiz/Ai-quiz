@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Quiz } from './components/Quiz/Quiz';
 import LoginModal from './components/LoginModal/LoginModal';
 import supabase from './supabase';
+import TimeBar from './components/ProgressBar/ProgressBar';
 
 function App() {
   const [isPreview, setIsPreview] = useState(false);
@@ -572,10 +573,10 @@ function App() {
                     </h3>
                     {/* 설명 */}
                     <div>
+                      {/* 프로그래스바 테스트 */}
                       <p className="text-gray-600 text-lg max-w-md mx-auto flex items-center justify-center">
                         ① 클립보드 복사 붙여넣기&nbsp;
                       </p>
-
                       <p className="text-gray-600 text-lg max-w-md mx-auto flex items-center justify-center">
                         ② PDF 파일을 업로드하기&nbsp;
                       </p>

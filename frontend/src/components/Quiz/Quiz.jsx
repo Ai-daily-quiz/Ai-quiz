@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import TimeBar from '../ProgressBar/ProgressBar';
 
 export const Quiz = ({
   quizMode,
@@ -100,6 +101,8 @@ export const Quiz = ({
             />
           </div>
         </div>
+        {/* 프로그래스 바 */}
+        <TimeBar />
 
         <div className="p-8">
           {/* 카테고리 */}
