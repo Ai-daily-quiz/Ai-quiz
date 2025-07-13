@@ -13,6 +13,7 @@ export const Quiz = ({
   const correctAnswer = Number(
     selectedTopic.questions[questionIndex].correct_answer
   ); // 객관식 답
+  const dbResult = selectedTopic.questions[questionIndex].result;
 
   // setIsTopicComplete(false);
   const getOptionStyle = index => {
@@ -39,9 +40,6 @@ export const Quiz = ({
     setSelectedAnswer(index);
   };
   const moveNextQuestion = async () => {
-    if (selectedTopic.result === 'fail') {
-      return;
-    }
     await onClickSubmit(
       selectedTopic.questions[questionIndex].quiz_id,
       selectedTopic.topic_id,
@@ -49,13 +47,15 @@ export const Quiz = ({
       selectedAnswer === correctAnswer ? 'pass' : 'fail', // result
       questionIndex,
       selectedTopic.questions.length - 1,
-      selectedTopic.result
+      dbResult
     );
     const nextIndex = questionIndex + 1;
 
     if (nextIndex >= selectedTopic.questions.length) {
       // debugger;
-      setIsTopicComplete(true);
+      if (dbResult !== 'fail ') {
+        setIsTopicComplete(true);
+      }
       return;
     }
 

@@ -24,6 +24,7 @@ function App() {
   const [pendingList, setPendingList] = useState(null);
   const [isNewQuiz, setIsNewQuiz] = useState(false);
   const [uploadFile, setUploadFile] = useState(null); /// 파일선택시 플래그
+  const [quizMode, setQuizMode] = useState(null);
 
   const handlePDFUpload = async () => {
     if (!uploadFile) {
@@ -145,9 +146,11 @@ function App() {
 
     if (e.target.value === 'incorrect-quiz') {
       // 틀린 문제 조회 함수
+      setQuizMode('incorrect');
       await getIncorrectQuiz();
     } else {
       // 진행중인 퀴즈 버튼 클릭시
+      setQuizMode('pending');
       await getPendingQuiz();
     }
   };
@@ -309,9 +312,10 @@ function App() {
 
   const handleSelectedTopic = (category, topic) => {
     setSelectedTopic(topic);
+    console.log('topic :', topic);
 
     const foundTopic = topics.find(element => element.category === category);
-    console.log(foundTopic);
+    console.log('foundTopic :', foundTopic);
     if (foundTopic) {
       const questionsLength = foundTopic.questions.length;
       console.log('questionsLength :', questionsLength);
@@ -373,14 +377,18 @@ function App() {
             setIsNewQuiz(false);
           }
         } else {
-          await getPendingQuiz();
+          if (quizMode === 'incorrect') {
+            await getIncorrectQuiz();
+          } else if (quizMode === 'pending') {
+            await getPendingQuiz();
+          }
         }
         setSelectedTopic(null); // 주제 선택 화면으로 돌아가기
         setIsTopicComplete(false); // 상태 초기화
       }
     };
     handleTopicComplete();
-  }, [isTopicComplete]);
+  }, [isTopicComplete, quizMode]);
 
   useEffect(() => {
     if (isResponse && isLoading) {
