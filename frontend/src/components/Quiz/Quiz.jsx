@@ -67,8 +67,8 @@ export const Quiz = ({
         <div className="bg-gradient-to-r from-orange-400 to-purple-500 p-6 text-white">
           <div className="flex justify-between items-center mb-3">
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold">{questionIndex + 1}</span>
-              <span className="text-lg opacity-80">/ {totalQuestion}</span>
+              <span className="text-4xl font-bold">{questionIndex + 1}</span>
+              <span className="text-xl opacity-80">/ {totalQuestion}</span>
             </div>
             <button
               className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition-all"
@@ -90,20 +90,9 @@ export const Quiz = ({
               종료하기
             </button>
           </div>
-
-          {/* 진행 바 */}
-          <div className="w-full bg-white/20 rounded-full h-2">
-            <div
-              className="bg-white rounded-full h-2 transition-all duration-500"
-              style={{
-                width: `${((questionIndex + 1) / totalQuestion) * 100}%`,
-              }}
-            />
-          </div>
         </div>
         {/* 프로그래스 바 */}
-        <TimeBar />
-
+        <TimeBar isSubmitted={isSubmitted} />
         <div className="p-8">
           {/* 카테고리 */}
           <div className="inline-flex items-center gap-2  text-gray-900 px-4 py-2 rounded-full text-2xl font-medium mb-6">
