@@ -3,31 +3,23 @@ import ProgressBar from '@ramonak/react-progress-bar';
 import './ProgressBar.css';
 
 export default function TimeBar() {
+  const [progress, setProgress] = useState(0);
   const [sec, setSec] = useState(0);
 
   useEffect(() => {
-    const setInterval_id = setTimeout(() => {
-      setSec(sec + 1);
+    setProgress(100);
+    const intervalId = setInterval(() => {
+      setSec(prevSec => {
+        const nextSec = prevSec + 1;
+        if (nextSec === 10) {
+          clearInterval(intervalId);
+        }
+        return nextSec;
+      });
     }, 1000);
-    if (sec === 10) {
-      clearInterval(setInterval_id);
-      // 실패 처리 함수 호출
-    }
-  });
+  }, []);
 
   return (
-    // <Row>
-    //   {/*<Clock />*/}
-    //   {/* <SvgIcon src={ClockSrc} size="100px" /> */}
-    //   <SizedBox width={'50px'} />
-    //   <ProgressBar
-    //     completed={String(sec)}
-    //     bgColor="var(--yellow)"
-    //     width="500px"
-    //     height="40px"
-    //   />
-    //   {sec}
-    // </Row>
     <>
       <div className="flex items-center mt-2 ml-5">
         <img
@@ -36,19 +28,18 @@ export default function TimeBar() {
           alt="clockImageError"
         />
         <ProgressBar
-          className="gradient-progress-bar"
-          completed={sec} // 진행률
-          maxCompleted={10}
-          height="15px" // 세로
-          width="550px" // 가로
-          borderRadius="50px" // 테두리를 얼마나 둥글게 할지
-          isLabelVisible={false} // 프로그레스 바 안에 라벨 표시를 할지 말지
-          baseBgColor="#dcdcdc" // 바 컬러
-          bgColor="linear-gradient(to right, #ffc700, red)" //  진행바 컬러
-          // #ffc700
-          // #fbbc04
+          completed={progress} // 0 → 100으로 변경됨
+          maxCompleted={100} // 최대값 100
+          height="10px"
+          width="550px"
+          borderRadius="50px"
+          isLabelVisible={false}
+          baseBgColor="#dcdcdc"
+          bgColor="linear-gradient(to right, #ffc700, red)"
+          transitionDuration="10s" // 10초 동안 천천히 채워짐
+          transitionTimingFunction="linear" // 일정한 속도로
+          animateOnRender={true}
         />
-
         <div className="ml-2">{sec}</div>
       </div>
     </>
