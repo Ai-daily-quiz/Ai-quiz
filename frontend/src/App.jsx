@@ -16,8 +16,10 @@ function App() {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [isTopicComplete, setIsTopicComplete] = useState(false);
   const [isPendingQuestion, setIsPendingQuestion] = useState(null);
+  const [isIncorrectQuestion, setIsIncorrectQuestion] = useState(null);
   const [user, setUser] = useState(null);
   const [showPendingButton, setShowPendingButton] = useState(true);
+  const [showIncorrectButton, setShowIncorrectButton] = useState(true);
   const [totalQuestion, setTotalQuestion] = useState(null);
   const [pendingList, setPendingList] = useState(null);
   const [isNewQuiz, setIsNewQuiz] = useState(false);
@@ -104,15 +106,81 @@ function App() {
     }
   };
 
-  const handleShowTopics = async () => {
-    // 진행중인 퀴즈 버튼 클릭시
+  const countIncorrect = async () => {
+    // 최초 로그인시 동작
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await axios.get(
+        'http://localhost:4000/api/quiz/count-incorrect',
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+      const incorrectQuizzes = response.data.incorrect_count;
+      console.log(
+        '로그인 확인 및 진행중인 퀴즈 수:',
+        response.data.incorrect_count
+      );
+      console.log(`isIncorrectQuestion : ${isIncorrectQuestion}`);
+      console.log(`incorrectQuizzes : ${incorrectQuizzes}`);
+
+      setIsIncorrectQuestion(incorrectQuizzes);
+      return response.data.incorrect_count;
+    } catch (error) {
+      console.error('퀴즈 가져오기 오류:', error);
+    }
+  };
+
+  const handleShowTopics = async e => {
     console.log('토픽 페이지를 보여주세요');
-    // 로그인 언마운트
-    // 진행중인 퀴즈 버튼 언마운트
     setShowPendingButton(false);
+    setShowIncorrectButton(false);
     setIsNewQuiz(false);
     setIsPreview(false);
-    await getPendingQuiz();
+
+    if (e.target.value === 'incorrect-quiz') {
+      // 틀린 문제 조회 함수
+      await getIncorrectQuiz();
+    } else {
+      // 진행중인 퀴즈 버튼 클릭시
+      await getPendingQuiz();
+    }
+  };
+
+  const getIncorrectQuiz = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await axios.get(
+        'http://localhost:4000/api/quiz/incorrect',
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      console.log('틀린 퀴즈 리스트:', response.data.result);
+      setPendingList(response.data.result);
+      console.log('틀린 퀴즈 수:', response.data.incorrect_count);
+      if (response.data.incorrect_count === 0) {
+        setIsTopicCards(false);
+        setIsPreview(true);
+        return;
+      }
+      setTopics(response.data.result);
+      setIsTopicCards(true);
+      setTotalQuestion(response.data.incorrect_count);
+    } catch (error) {
+      console.error('틀린 퀴즈 가져오기 오류:', error);
+    }
   };
 
   const getPendingQuiz = async () => {
@@ -152,9 +220,16 @@ function App() {
     userChoice,
     result,
     questionIndex,
-    totalIndex
+    totalIndex,
+    dbResult
   ) => {
     try {
+      if (dbResult === 'fail') {
+        // just try
+        console.log('fail');
+        return;
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -254,6 +329,7 @@ function App() {
         }
       }
       countPending();
+      countIncorrect();
     }, []);
 
     // 인증 상태 변화 감지
@@ -275,6 +351,7 @@ function App() {
         setIsLoading(false);
         setIsTopicComplete(false);
         setShowPendingButton(true);
+        setShowIncorrectButton(true);
       }
     });
 
@@ -366,11 +443,23 @@ function App() {
               {showPendingButton && isPendingQuestion > 0 && !selectedTopic && (
                 <button
                   onClick={handleShowTopics}
+                  value="in-progress-quiz"
                   className="bg-white text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
                 >
                   진행중인 퀴즈 {isPendingQuestion}개
                 </button>
               )}
+              {showIncorrectButton &&
+                isIncorrectQuestion > 0 &&
+                !selectedTopic && (
+                  <button
+                    onClick={handleShowTopics}
+                    value="incorrect-quiz"
+                    className="bg-white text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
+                  >
+                    틀린 문제 풀기 {isIncorrectQuestion}개
+                  </button>
+                )}
 
               {/* 로그아웃 버튼 */}
               <LoginModal user={user} />
@@ -387,10 +476,6 @@ function App() {
                 />
               </div>
             </div>
-
-            {/* <div className="text-center">
-              <h1 className="text-5xl font-bold text-blue-600 mb-2">AI 퀴즈</h1>
-            </div> */}
           </div>
         ) : (
           <div className="fixed inset-0 z-50">

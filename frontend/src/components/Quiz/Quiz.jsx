@@ -39,13 +39,17 @@ export const Quiz = ({
     setSelectedAnswer(index);
   };
   const moveNextQuestion = async () => {
+    if (selectedTopic.result === 'fail') {
+      return;
+    }
     await onClickSubmit(
       selectedTopic.questions[questionIndex].quiz_id,
       selectedTopic.topic_id,
       selectedAnswer, // 선택한 답
       selectedAnswer === correctAnswer ? 'pass' : 'fail', // result
       questionIndex,
-      selectedTopic.questions.length - 1
+      selectedTopic.questions.length - 1,
+      selectedTopic.result
     );
     const nextIndex = questionIndex + 1;
 
