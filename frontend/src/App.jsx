@@ -124,7 +124,7 @@ function App() {
       );
       const incorrectQuizzes = response.data.incorrect_count;
       console.log(
-        '로그인 확인 및 진행중인 퀴즈 수:',
+        '로그인 확인 및 틀린 퀴즈 수:',
         response.data.incorrect_count
       );
       console.log(`isIncorrectQuestion : ${isIncorrectQuestion}`);
@@ -287,11 +287,19 @@ function App() {
     console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
   };
 
-  const handleEndQuiz = async () => {
+  const handleEndQuiz = async quizMode => {
     console.log('종료 클릭');
     // 언마운트할 내용들.
     try {
-      await getPendingQuiz();
+      if (quizMode === 'incorrect') {
+        // 틀린 문제 조회 함수
+        setQuizMode('incorrect');
+        await getIncorrectQuiz();
+      } else {
+        // 진행중인 퀴즈 버튼 클릭시
+        setQuizMode('pending');
+        await getPendingQuiz();
+      }
     } catch (error) {
       console.error('퀴즈 중간 종료 에러 :', error);
     }
@@ -626,6 +634,7 @@ function App() {
         {selectedTopic && (
           <div className="animate-slideIn">
             <Quiz
+              quizMode={quizMode}
               clickEnd={handleEndQuiz}
               selectedTopic={selectedTopic}
               setIsTopicComplete={setIsTopicComplete}
@@ -645,7 +654,6 @@ function App() {
                 topics={topics}
                 setIsPreview={setIsPreview}
                 onTopicSelect={handleSelectedTopic}
-                pendingList={pendingList}
                 quizMode={quizMode}
               />
             </div>
