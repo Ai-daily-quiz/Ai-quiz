@@ -646,6 +646,7 @@ function App() {
                 setIsPreview={setIsPreview}
                 onTopicSelect={handleSelectedTopic}
                 pendingList={pendingList}
+                quizMode={quizMode}
               />
             </div>
           </div>
