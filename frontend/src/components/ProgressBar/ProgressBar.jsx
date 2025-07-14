@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ProgressBar from '@ramonak/react-progress-bar';
-import './ProgressBar.css';
 
-export default function TimeBar({ isSubmitted, questionIndex }) {
+export default function TimeBar({ isSubmitted, questionIndex, handleAnswer }) {
   const [progress, setProgress] = useState(0);
   const [sec, setSec] = useState(0);
   const intervalRef = useRef(null);
@@ -12,6 +11,7 @@ export default function TimeBar({ isSubmitted, questionIndex }) {
   // 프로그래스바 멈춤
   //
 
+  const quizLimitSec = 20;
   useEffect(() => {
     // 1️⃣ 다음 문제로 넘어가거나, 2️⃣ 답을 제출하거나
     if (isSubmitted) {
@@ -27,8 +27,8 @@ export default function TimeBar({ isSubmitted, questionIndex }) {
 
   useEffect(() => {
     // 초기화 추가
-    setSec(0); // 이게 빠져있음!
-    setProgress(0); // 프로그레스바도 0으로
+    setSec(0); //
+    setProgress(0); //
     clearInterval(intervalRef.current); // 이전 타이머 정리
 
     // 약간의 딜레이 후 시작
@@ -40,10 +40,12 @@ export default function TimeBar({ isSubmitted, questionIndex }) {
     intervalRef.current = setInterval(() => {
       setSec(prevSec => {
         const nextSec = prevSec + 1;
-        if (nextSec === 10) {
+        if (nextSec === quizLimitSec) {
           clearInterval(intervalRef.current);
           setProgress((Date.now() - startRef.current) / 100);
           // 타임 오버 실패 함수 호출
+          console.log('타임오버');
+          handleAnswer();
         }
         return nextSec;
       });
@@ -70,7 +72,7 @@ export default function TimeBar({ isSubmitted, questionIndex }) {
           isLabelVisible={false}
           baseBgColor="#dcdcdc"
           bgColor="linear-gradient(to right, #ffc700, red)"
-          transitionDuration={isSubmitted ? '0s' : '10s'} // 10초 동안 천천히 채워짐
+          transitionDuration={isSubmitted ? '0s' : `${quizLimitSec}s`} // 10초 동안 천천히 채워짐
           transitionTimingFunction="linear" // 일정한 속도로
           animateOnRender={true}
         />
