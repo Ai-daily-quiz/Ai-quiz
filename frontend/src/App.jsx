@@ -545,7 +545,7 @@ function App() {
 
           {/* 로그인 모달 - 중앙 정렬 */}
           <div className="relative flex items-center justify-center h-full">
-            <div className="relative bg-white rounded-2xl shadow-2xl p-8 text-center w-[30%] h-[35%] min-w-[320px] max-w-[500px] mx-auto border border-gray-200">
+            <div className="relative bg-white rounded-2xl shadow-2xl p-8 text-center w-[30%] h-[35%] min-w-[320px] max-w-[500px] mx-auto border border-gray-200 flex flex-col justify-center">
               <button
                 onClick={() => setIsLoginModal(false)}
                 className="absolute bg-transparent top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-0 border-0 outline-none focus:outline-none"
@@ -573,10 +573,10 @@ function App() {
                     alt=""
                   />
                 </div>
-                <p className="text-xl text-gray-700 font-medium mb-4">
+                <p className="text-xl text-gray-700 font-medium mt-4 mb-4">
                   로그인이 필요합니다
                 </p>
-                <p className="text-gray-500 mb-6">
+                <p className="text-gray-500 ">
                   퀴즈를 시작하려면 먼저 로그인해주세요
                 </p>
               </div>
