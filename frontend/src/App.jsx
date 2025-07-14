@@ -265,13 +265,16 @@ function App() {
       data: { session },
     } = await supabase.auth.getSession();
     // const session = await supabase.auth.getSession();
+
+    const headers = session?.access_token
+      ? { Authorization: `Bearer ${session.access_token}` }
+      : {};
+
     const response = await axios.post(
       'http://localhost:4000/api/analyze',
       payload,
       {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+        headers,
       }
     );
     setIsResponse(true);
@@ -324,9 +327,14 @@ function App() {
       setTotalQuestion(questionsLength);
     }
   };
+
   const handleLoginModal = () => {
     console.log('로그인 모달');
     setIsLoginModal(true);
+  };
+
+  const moveHome = () => {
+    window.location.href = '/';
   };
 
   useEffect(() => {
@@ -416,9 +424,7 @@ function App() {
             <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-400 opacity-70">
               <button // 홈버튼
                 className="absolute top-4 right-5 bg-white text-gray-700 px-1.5 py-1.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 flex hover:scale-110 transform items-center gap-2"
-                onClick={() => {
-                  window.location.href = '/';
-                }}
+                onClick={moveHome}
               >
                 <svg
                   className="w-7 h-7"
@@ -446,7 +452,7 @@ function App() {
       </div>
 
       {/* 로그인 하지 않은 경우에만 배경을 반투명하게 */}
-      {!user && <div className="absolute inset-0 bg-white/50 z-30"></div>}
+      {/* {!user && <div className="absolute inset-0 bg-white/50 z-30"></div>} */}
 
       <div className="container mx-auto px-4 py-8">
         {user ? (
@@ -467,6 +473,7 @@ function App() {
                   />
                 </button>
               )}
+
               {showIncorrectButton &&
                 isIncorrectQuestion > 0 &&
                 !selectedTopic && (
@@ -538,22 +545,33 @@ function App() {
 
           {/* 로그인 모달 - 중앙 정렬 */}
           <div className="relative flex items-center justify-center h-full">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 text-center w-[30%] h-[35%] min-w-[320px] max-w-[500px] mx-auto border border-gray-200">
-              <div className="mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <svg
-                    className="w-10 h-10 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+            <div className="relative bg-white rounded-2xl shadow-2xl p-8 text-center w-[30%] h-[35%] min-w-[320px] max-w-[500px] mx-auto border border-gray-200">
+              <button
+                onClick={() => setIsLoginModal(false)}
+                className="absolute bg-transparent top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-0 border-0 outline-none focus:outline-none"
+              >
+                <svg
+                  className="w-7 h-7"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+
+              <div className="mb-6 ">
+                <div className="flex items-center justify-center">
+                  <img
+                    src="/assets/default-profile.png"
+                    className="w-20 h-20"
+                    alt=""
+                  />
                 </div>
                 <p className="text-xl text-gray-700 font-medium mb-4">
                   로그인이 필요합니다
@@ -568,7 +586,8 @@ function App() {
         </div>
       )}
       <div className="container mx-auto px-4">
-        {(!user || (!selectedTopic && !isTopicCards && isPreview)) && (
+        {((!user && !isTopicCards && !isLoading && !isLoginModal) ||
+          (!selectedTopic && !isTopicCards && isPreview && !isLoading)) && (
           <div className="animate-fadeIn max-w-4xl mx-auto relative z-20">
             <div className="relative">
               {/* 배경 블러 효과 */}

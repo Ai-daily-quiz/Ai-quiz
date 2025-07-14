@@ -161,15 +161,15 @@ app.post("/api/analyze", async (req, res) => {
     const { clipboard } = req.body;
     console.log("🪢 클립보드 텍스트 길이:", clipboard?.length);
     const authHeader = req.headers.authorization;
+    const headers = authHeader ? { Authorization: authHeader } : {};
+
     const response = await axios.post(
       "http://localhost:5001/api/analyze",
       {
         text: clipboard,
       },
       {
-        headers: {
-          Authorization: authHeader, // 헤더 전달
-        },
+        headers,
       }
     );
 
