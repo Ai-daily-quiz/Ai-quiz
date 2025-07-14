@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { TopicCard } from './TopicCard/TopicCard';
 
 export const TopicCards = ({
   topics,
@@ -16,7 +15,6 @@ export const TopicCards = ({
   };
 
   const getTopicCardColor = quizMode => {
-    console.log('🟢 quizMode : ', quizMode);
     if (quizMode === 'incorrect') {
       return 'red';
     } else {

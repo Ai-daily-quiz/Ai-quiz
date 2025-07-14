@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TimeBar from '../ProgressBar/ProgressBar';
 
 export const Quiz = ({
   quizMode,
   clickEnd,
   selectedTopic,
+  setSelectedTopic,
   setIsTopicComplete,
   onClickSubmit,
   totalQuestion,
@@ -12,11 +13,12 @@ export const Quiz = ({
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
+
   const correctAnswer = Number(
     selectedTopic.questions[questionIndex].correct_answer
   );
   const dbResult = selectedTopic.questions[questionIndex].result;
-
   const getOptionStyle = index => {
     if (!isSubmitted) {
       return 'bg-white border border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transform transition-all hover:scale-[1.02] hover:shadow-md';
@@ -45,10 +47,12 @@ export const Quiz = ({
       selectedAnswer === correctAnswer ? 'pass' : 'fail',
       questionIndex,
       selectedTopic.questions.length - 1,
-      dbResult
+      dbResult,
+      quizMode
     );
     const nextIndex = questionIndex + 1;
     if (nextIndex >= selectedTopic.questions.length) {
+      setIsCompleted(true);
       if (dbResult !== 'fail') {
         setIsTopicComplete(true);
       }
@@ -59,6 +63,15 @@ export const Quiz = ({
     setIsSubmitted(false);
     setQuestionIndex(nextIndex);
   };
+
+  useEffect(() => {
+    if (isCompleted) {
+      // 완료 처리 로직
+      setTimeout(() => {
+        setSelectedTopic(null);
+      }, 1000);
+    }
+  }, [isCompleted]);
 
   return (
     <div className="w-[650px] mx-auto relative z-30">
@@ -174,7 +187,7 @@ export const Quiz = ({
           {isSubmitted && (
             <div className="flex justify-end">
               <button
-                className="flex items-center justify-center w-[80px] h-[40px] bg-gradient-to-r from-orange-400 to-purple-500 hover:from-orange-400 hover:to-purple-500 text-white py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-[1.02]"
+                className="flex items-center justify-center w-[80px] h-[40px] bg-gradient-to-r from-orange-400 to-purple-500 hover:from-orange-400 hover:to-purple-500 text-white py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-[1.05]"
                 onClick={() => moveNextQuestion()}
               >
                 {questionIndex === selectedTopic.questions.length - 1

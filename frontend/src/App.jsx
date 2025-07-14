@@ -92,16 +92,7 @@ function App() {
         }
       );
       const pendingQuizzes = response.data.pending_count;
-      console.log(
-        '로그인 확인 및 진행중인 퀴즈 수:',
-        response.data.pending_count
-      );
-      console.log(`isPendingQuestion : ${isPendingQuestion}`);
-      console.log(`pendingQuizzes : ${pendingQuizzes}`);
-
       setIsPendingQuestion(pendingQuizzes);
-      // setTopics(response.data.result);
-      // setIsTopicCards(true);
       return response.data.pending_count;
     } catch (error) {
       console.error('퀴즈 가져오기 오류:', error);
@@ -124,12 +115,6 @@ function App() {
         }
       );
       const incorrectQuizzes = response.data.incorrect_count;
-      console.log(
-        '로그인 확인 및 틀린 퀴즈 수:',
-        response.data.incorrect_count
-      );
-      console.log(`isIncorrectQuestion : ${isIncorrectQuestion}`);
-      console.log(`incorrectQuizzes : ${incorrectQuizzes}`);
 
       setIsIncorrectQuestion(incorrectQuizzes);
       return response.data.incorrect_count;
@@ -138,21 +123,27 @@ function App() {
     }
   };
 
-  const handleShowTopics = async e => {
-    console.log('토픽 페이지를 보여주세요');
+  const handleShowTopics = async mode => {
+    // 로그인 후 퀴즈 아이콘 (진행, 틀린) 클릭시 주제 카드 나열
     setShowPendingButton(false);
     setShowIncorrectButton(false);
     setIsNewQuiz(false);
     setIsPreview(false);
 
-    if (e.target.value === 'incorrect-quiz') {
-      // 틀린 문제 조회 함수
+    if (mode === 'incorrect') {
+      // 틀린 퀴즈 버튼 => 주제 카드
       setQuizMode('incorrect');
+      setShowPendingButton(true);
       await getIncorrectQuiz();
-    } else {
-      // 진행중인 퀴즈 버튼 클릭시
+    } else if (mode === 'pending') {
+      // 진행 퀴즈 버튼 => 주제 카드
       setQuizMode('pending');
+      setShowIncorrectButton(true);
       await getPendingQuiz();
+    } else {
+      // 틀린 퀴즈 완료 버튼 => 주제 카드
+      setShowIncorrectButton(true);
+      // 마지막일 때만
     }
   };
 
@@ -202,9 +193,9 @@ function App() {
         }
       );
 
-      console.log('남은 퀴즈 리스트:', response.data.result);
+      console.log('진행 퀴즈 리스트:', response.data.result);
       setPendingList(response.data.result);
-      console.log('남은 퀴즈 수:', response.data.pending_count);
+      console.log('진행 퀴즈 수:', response.data.pending_count);
       if (response.data.pending_count === 0) {
         setIsTopicCards(false);
         setIsPreview(true);
@@ -225,14 +216,17 @@ function App() {
     result,
     questionIndex,
     totalIndex,
-    dbResult
+    dbResult,
+    quizMode
   ) => {
     try {
+      console.log('받은 dbResult:', dbResult);
+      console.log('받은 quizMode:', quizMode);
+
       if (dbResult === 'fail') {
-        // just try
-        console.log('fail');
         return;
       }
+      console.log('🟢 quizMode :', quizMode);
 
       const {
         data: { session },
@@ -289,7 +283,6 @@ function App() {
   };
 
   const handleEndQuiz = async quizMode => {
-    console.log('종료 클릭');
     // 언마운트할 내용들.
     try {
       if (quizMode === 'incorrect') {
@@ -324,7 +317,6 @@ function App() {
     console.log('topic :', topic);
 
     const foundTopic = topics.find(element => element.category === category);
-    console.log('foundTopic :', foundTopic);
     if (foundTopic) {
       const questionsLength = foundTopic.questions.length;
       console.log('questionsLength :', questionsLength);
@@ -459,22 +451,30 @@ function App() {
               {/* 진행중인 퀴즈 버튼 */}
               {showPendingButton && isPendingQuestion > 0 && !selectedTopic && (
                 <button
-                  onClick={handleShowTopics}
-                  value="in-progress-quiz"
-                  className="bg-white text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
+                  onClick={() => handleShowTopics('pending')}
+                  className="flex items-center bg-white text-gray-700 px-4 py-1 rounded-full text-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
                 >
-                  진행중인 퀴즈 {isPendingQuestion}개
+                  진행&nbsp;
+                  <img
+                    src="/assets/quiz-icon-cyan.png"
+                    className="w-6"
+                    alt=""
+                  />
                 </button>
               )}
               {showIncorrectButton &&
                 isIncorrectQuestion > 0 &&
                 !selectedTopic && (
                   <button
-                    onClick={handleShowTopics}
-                    value="incorrect-quiz"
-                    className="bg-white text-gray-700 px-4 py-2.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
+                    onClick={() => handleShowTopics('incorrect')}
+                    className="flex items-center bg-white text-gray-700 px-4 py-1 rounded-full text-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-110 transform border border-gray-200"
                   >
-                    틀린 문제 풀기 {isIncorrectQuestion}개
+                    틀린 &nbsp;
+                    <img
+                      src="/assets/quiz-icon-red.png"
+                      className="w-6"
+                      alt=""
+                    />
                   </button>
                 )}
 
@@ -638,6 +638,7 @@ function App() {
               quizMode={quizMode}
               clickEnd={handleEndQuiz}
               selectedTopic={selectedTopic}
+              setSelectedTopic={setSelectedTopic}
               setIsTopicComplete={setIsTopicComplete}
               onClickSubmit={submitQuizAnswer}
               totalQuestion={totalQuestion}
