@@ -33,16 +33,21 @@ const LoginModal = ({ user }) => {
     if (error) console.error('로그아웃 에러:', error);
   };
 
-  // 로그인된 경우 로그아웃 버튼만 표시
-  // LoginModal.jsx에서 로그아웃 버튼 부분
+  const handleLogIn = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('로그인 에러:', error);
+  };
+
   if (user) {
     return (
-      <button
-        onClick={handleLogout}
-        className="bg-white text-gray-700 px-4 py-1 rounded-full text-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:scale-110 transform"
-      >
-        로그아웃
-      </button>
+      <div>
+        <button
+          onClick={handleLogout}
+          className="bg-white text-gray-700 px-4 py-1 rounded-full text-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:scale-110 transform"
+        >
+          로그아웃
+        </button>
+      </div>
     );
   }
 

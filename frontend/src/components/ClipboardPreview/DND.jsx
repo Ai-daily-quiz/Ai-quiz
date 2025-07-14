@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Button } from './Button/Button';
 
 export const MyDropzone = ({ setUploadFile, onSendFile }) => {
   const [file, setFile] = useState(null);
