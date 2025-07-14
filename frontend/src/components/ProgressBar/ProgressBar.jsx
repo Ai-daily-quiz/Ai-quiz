@@ -2,35 +2,54 @@ import { useEffect, useRef, useState } from 'react';
 import ProgressBar from '@ramonak/react-progress-bar';
 import './ProgressBar.css';
 
-export default function TimeBar({ isSubmitted }) {
+export default function TimeBar({ isSubmitted, questionIndex }) {
   const [progress, setProgress] = useState(0);
   const [sec, setSec] = useState(0);
   const intervalRef = useRef(null);
   const startRef = useRef(0);
 
+  // 답 제출
+  // 프로그래스바 멈춤
+  //
+
   useEffect(() => {
-    if (isSubmitted) return;
-    setProgress(100);
+    // 1️⃣ 다음 문제로 넘어가거나, 2️⃣ 답을 제출하거나
+    if (isSubmitted) {
+      // 답 제출시에만
+      clearInterval(intervalRef.current);
+      setProgress((Date.now() - startRef.current) / 100);
+    }
+  }, [isSubmitted]);
+
+  // 다음버튼 클릭
+  // 프로그래스바 초기화
+  //
+
+  useEffect(() => {
+    // 초기화 추가
+    setSec(0); // 이게 빠져있음!
+    setProgress(0); // 프로그레스바도 0으로
+    clearInterval(intervalRef.current); // 이전 타이머 정리
+
+    // 약간의 딜레이 후 시작
+    setTimeout(() => {
+      setProgress(100);
+    }, 50);
+
     startRef.current = Date.now();
     intervalRef.current = setInterval(() => {
       setSec(prevSec => {
         const nextSec = prevSec + 1;
         if (nextSec === 10) {
           clearInterval(intervalRef.current);
-          //함수 호출 실패
+          setProgress((Date.now() - startRef.current) / 100);
+          // 타임 오버 실패 함수 호출
         }
         return nextSec;
       });
     }, 1000);
     return () => clearInterval(intervalRef.current);
-  }, [isSubmitted]);
-
-  useEffect(() => {
-    if (isSubmitted) {
-      clearInterval(intervalRef.current);
-      setProgress((Date.now() - startRef.current) / 100);
-    }
-  }, [isSubmitted]);
+  }, [questionIndex]);
 
   return (
     <>
@@ -41,7 +60,7 @@ export default function TimeBar({ isSubmitted }) {
           alt="clockImageError"
         />
         <ProgressBar
-          key={isSubmitted ? 'stopped' : 'running'}
+          key={questionIndex}
           className="ml-1"
           completed={progress} // 0 → 100으로 변경됨
           maxCompleted={100} // 최대값 100
@@ -53,9 +72,9 @@ export default function TimeBar({ isSubmitted }) {
           bgColor="linear-gradient(to right, #ffc700, red)"
           transitionDuration={isSubmitted ? '0s' : '10s'} // 10초 동안 천천히 채워짐
           transitionTimingFunction="linear" // 일정한 속도로
-          animateOnRender={false}
+          animateOnRender={true}
         />
-        <div className="ml-2 text-lg">{sec}</div>
+        <div className="ml-2 text-xl">{sec}</div>
       </div>
     </>
   );

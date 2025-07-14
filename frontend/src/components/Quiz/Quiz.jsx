@@ -92,7 +92,7 @@ export const Quiz = ({
           </div>
         </div>
         {/* 프로그래스 바 */}
-        <TimeBar isSubmitted={isSubmitted} />
+        <TimeBar isSubmitted={isSubmitted} questionIndex={questionIndex} />
         <div className="p-8">
           {/* 카테고리 */}
           <div className="inline-flex items-center gap-2  text-gray-900 px-4 py-2 rounded-full text-2xl font-medium mb-6">
