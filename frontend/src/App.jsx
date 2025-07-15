@@ -7,6 +7,8 @@ import { Quiz } from './components/Quiz/Quiz';
 import LoginModal from './components/LoginModal/LoginModal';
 import supabase from './supabase';
 import TimeBar from './components/ProgressBar/ProgressBar';
+import { toast, ToastContainer } from 'react-toastify';
+import './toast.css';
 
 function App() {
   const [isPreview, setIsPreview] = useState(false);
@@ -74,7 +76,10 @@ function App() {
       console.error('에러 응답:', error.response?.data);
       console.error('에러 상태:', error.response?.status);
       setIsLoading(false);
-      alert(error.response.data.message);
+      // <Snackbar open={!!error} autoHideDuration={6000}>
+      //   <Alert severity="error">{error.response.data.message}</Alert>
+      // </Snackbar>;
+      toast.error(error.response.data.message);
     }
   };
 
@@ -586,6 +591,7 @@ function App() {
           </div>
         </div>
       )}
+
       <div className="container mx-auto px-4">
         {((!user && !isTopicCards && !isLoading && !isLoginModal) ||
           (!selectedTopic && !isTopicCards && isPreview && !isLoading)) && (
@@ -706,6 +712,13 @@ function App() {
           </div>
         )}
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+      />
     </div>
   );
 }
