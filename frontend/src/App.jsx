@@ -39,7 +39,6 @@ function App() {
     if (isResponse) {
       setIsTopicCards(true);
     } else {
-      // 분석이 완료되지 않은 경우 (!isResponse)
       setIsLoading(true);
     }
 
@@ -76,9 +75,6 @@ function App() {
       console.error('에러 응답:', error.response?.data);
       console.error('에러 상태:', error.response?.status);
       setIsLoading(false);
-      // <Snackbar open={!!error} autoHideDuration={6000}>
-      //   <Alert severity="error">{error.response.data.message}</Alert>
-      // </Snackbar>;
       toast.error(error.response.data.message);
     }
   };
@@ -270,7 +266,6 @@ function App() {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    // const session = await supabase.auth.getSession();
 
     const headers = session?.access_token
       ? { Authorization: `Bearer ${session.access_token}` }
@@ -286,10 +281,6 @@ function App() {
     setIsResponse(true);
     setIsNewQuiz(true);
     setTopics(response.data.result.topics);
-    // setTotalQuestion(response.data.total_question);
-    console.log('LLM 결과 주제 : ', response.data.result.topics);
-    console.log('response.data:', response.data);
-    console.log('생성 퀴즈 갯수 : ', response.data.total_question); // 분모
   };
 
   const handleEndQuiz = async quizMode => {
