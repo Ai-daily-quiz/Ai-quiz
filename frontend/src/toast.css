@@ -24,24 +24,6 @@
   color: white;
 }
 
-/* 성공 토스트 */
-.Toastify__toast--success {
-  background: #00c851;
-  color: white;
-}
-
-/* 정보 토스트 */
-.Toastify__toast--info {
-  background: #33b5e5;
-  color: white;
-}
-
-/* 경고 토스트 */
-.Toastify__toast--warning {
-  background: #ffbb33;
-  color: #333;
-}
-
 /* 닫기 버튼 */
 .Toastify__close-button {
   color: white;
@@ -63,12 +45,6 @@
 
 .Toastify__progress-bar--success {
   background: rgba(255, 255, 255, 0.8);
-}
-
-/* 아이콘 */
-.Toastify__toast-icon {
-  width: 20px;
-  margin-right: 12px;
 }
 
 /* 애니메이션 */

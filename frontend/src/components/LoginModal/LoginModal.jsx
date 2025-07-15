@@ -33,11 +33,6 @@ const LoginModal = ({ user }) => {
     if (error) console.error('로그아웃 에러:', error);
   };
 
-  const handleLogIn = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.error('로그인 에러:', error);
-  };
-
   if (user) {
     return (
       <div>

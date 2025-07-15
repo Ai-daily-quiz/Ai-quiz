@@ -458,7 +458,6 @@ function App() {
       </div>
 
       {/* 로그인 하지 않은 경우에만 배경을 반투명하게 */}
-      {/* {!user && <div className="absolute inset-0 bg-white/50 z-30"></div>} */}
 
       <div className="container mx-auto px-4 py-8">
         {user ? (
