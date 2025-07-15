@@ -5,11 +5,9 @@ const multer = require("multer");
 const fs = require("fs");
 const FormData = require("form-data");
 
-const uploadMBLimit = 1;
-
 const upload = multer({
   dest: "uploads/",
-  limits: { fileSize: uploadMBLimit * 1024 * 1024 },
+  limits: { fileSize: 100 * 1024 * 1024 },
 });
 
 // Express 앱 생성
@@ -131,9 +129,19 @@ app.post(
   "/api/analyze-file",
   upload.single("uploadFile"),
   async (req, res, next) => {
-    // 이제 req.file 이 무조건 존재합니다
     try {
+      const isMember = !!req.headers.authorization;
+      const uploadMBLimit = isMember ? 50 : 10;
+
+      if (req.file.size > uploadMBLimit * 1024 * 1024) {
+        const error = new multer.MulterError("LIMIT_FILE_SIZE");
+        error.message = `파일 크기는 최대 ${uploadMBLimit}MB까지 업로드 가능합니다.`;
+
+        fs.unlinkSync(req.file.path);
+        return next(error);
+      }
       console.log("🟢 파일 정보:", req.file);
+      console.log("🟢 파일 정보:", req.file.size);
       const formData = new FormData();
       formData.append("file", fs.createReadStream(req.file.path));
       formData.append("filename", req.file.originalname);
@@ -144,7 +152,9 @@ app.post(
       const response = await axios.post(
         "http://localhost:5001/api/analyze-file",
         formData,
-        { headers }
+        {
+          headers,
+        }
       );
 
       console.log("Python 서버 응답:", response.data);
@@ -195,7 +205,7 @@ app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
       return res.status(413).json({
-        message: `파일 크기는 최대 ${uploadMBLimit}MB까지 업로드 가능합니다.`,
+        message: err.message,
       });
     }
     return res.status(400).json({ message: err.message });

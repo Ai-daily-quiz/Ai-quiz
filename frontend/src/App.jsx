@@ -57,10 +57,7 @@ function App() {
         'http://localhost:4000/api/analyze-file',
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            headers,
-          },
+          headers,
         }
       );
       // 퀴즈 결과 처리

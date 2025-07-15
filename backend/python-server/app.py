@@ -331,6 +331,7 @@ def submit_quiz():
 @app.route("/api/analyze-file", methods=["POST"])
 def analyze_file():
     auth_header = request.headers.get("Authorization", "")
+    user_id = None
 
     if auth_header:
         try:
