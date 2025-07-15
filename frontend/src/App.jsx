@@ -49,13 +49,17 @@ function App() {
         data: { session },
       } = await supabase.auth.getSession();
 
+      const headers = session?.access_token
+        ? { Authorization: `Bearer ${session?.access_token}` }
+        : {};
+
       const response = await axios.post(
         'http://localhost:4000/api/analyze-file',
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${session?.access_token}`,
+            headers,
           },
         }
       );
@@ -73,7 +77,7 @@ function App() {
       console.error('에러 응답:', error.response?.data);
       console.error('에러 상태:', error.response?.status);
       setIsLoading(false);
-      alert('PDF 업로드에 실패했습니다. 다시 시도해주세요.');
+      alert(error.response.data.message);
     }
   };
 

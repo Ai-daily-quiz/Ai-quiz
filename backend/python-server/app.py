@@ -1,3 +1,4 @@
+from ast import Try
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
@@ -330,12 +331,16 @@ def submit_quiz():
 @app.route("/api/analyze-file", methods=["POST"])
 def analyze_file():
     auth_header = request.headers.get("Authorization", "")
-    token = auth_header.replace("Bearer ", "")
-    userInfo = supabase.auth.get_user(token)
-    user_id = userInfo.user.id
 
-    if not user_id:
-        return jsonify({"error": "Invalid token"}), 401
+    if auth_header:
+        try:
+            token = auth_header.replace("Bearer ", "")
+            userInfo = supabase.auth.get_user(token)
+            user_id = userInfo.user.id
+            print(f"User ID: {user_id}")  # 디버깅용
+        except Exception as e:
+            print(f"Auth error: {e}")  # 토큰 검증 실패 로그
+            user_id = None
 
     try:
         now = datetime.now()
@@ -357,7 +362,7 @@ def analyze_file():
         quiz_list, result = generate_quiz(text, user_id, formatted_date)
 
         # 배치 삽입
-        if quiz_list:
+        if quiz_list and user_id:
             supabase.table("quizzes").insert(quiz_list).execute()
 
         return jsonify(
@@ -372,7 +377,6 @@ def analyze_file():
 @app.route("/api/analyze", methods=["POST"])
 def analyze_text():
     auth_header = request.headers.get("Authorization", "")
-    user_id = None
 
     if auth_header:
         try:
