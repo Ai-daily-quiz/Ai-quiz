@@ -12,6 +12,7 @@ import PyPDF2
 
 load_dotenv()
 app = Flask(__name__)
+application = app
 CORS(app)
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 url: str = os.environ.get("SUPABASE_URL")
