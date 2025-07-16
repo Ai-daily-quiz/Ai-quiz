@@ -288,7 +288,7 @@ def submit_quiz():
 
     data = request.get_json()
     if not data:
-        return jsonify({"error": "No data provieded"}), 400
+        return jsonify({"error": "No data provided"}), 400
     quiz_id = data.get("quizId")
     if len(quiz_id) > 50:
         return jsonify({"error": "Invalid quiz_id"}), 400

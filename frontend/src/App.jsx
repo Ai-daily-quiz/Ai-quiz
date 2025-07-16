@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ClipboardPreview } from './components/ClipboardPreview/ClipboardPreview';
-
 import { TopicCards } from './components/TopicCards/TopicCards';
 import axios from 'axios';
 import { Quiz } from './components/Quiz/Quiz';
 import LoginModal from './components/LoginModal/LoginModal';
 import supabase from './supabase';
-import TimeBar from './components/ProgressBar/ProgressBar';
 import { toast, ToastContainer } from 'react-toastify';
 import './toast.css';
 
