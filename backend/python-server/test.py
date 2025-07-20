@@ -1,13 +1,11 @@
-import os  # 사용하지 않는 import
-import sys
+from PIL import Image
+import numpy as np
+import pytesseract
 
+filename = "sample.png"
+config = "-l kor+eng"
 
-def test_function():  # 불필요한 공백
-    x = 1 + 2  # 띄어쓰기 없음
-    y = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]  # 긴 줄
-    return x
-
-
-class TestClass:
-    def __init__(self):
-        pass
+# config = ('-l kor+eng --oem 3 --psm 11')
+img1 = np.array(Image.open(filename))
+text = pytesseract.image_to_string(img1, config=config)
+print(text)

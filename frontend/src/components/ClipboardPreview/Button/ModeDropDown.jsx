@@ -1,15 +1,15 @@
-import { useState } from 'react';
-
+import { useRequestTypeStore } from '../../../store/useRequestTypeStore';
 export const ModeSelect = ({ setShowClipboard, setShowDropZone }) => {
-  const [selectedMode, setSelectedMode] = useState('clipboard');
-
   const handleChange = e => {
     const mode = e.target.value;
-    setSelectedMode(mode);
+    useRequestTypeStore.getState().setSelectedMode(mode);
 
     if (mode === 'clipboard') {
       setShowClipboard(true);
       setShowDropZone(false);
+    } else if (mode === 'pdf-text') {
+      setShowClipboard(false);
+      setShowDropZone(true);
     } else {
       setShowClipboard(false);
       setShowDropZone(true);
@@ -19,12 +19,13 @@ export const ModeSelect = ({ setShowClipboard, setShowDropZone }) => {
   return (
     <div className="relative inline-block">
       <select
-        value={selectedMode}
+        // value={selectedMode}
         onChange={handleChange}
         className="appearance-none pl-4 pr-10 py-1.5 bg-[#F5F5F7] hover:bg-[#E8E8ED] border border-[#D2D2D7] rounded-[10px] text-[14px] text-gray-800 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors cursor-pointer"
       >
         <option value="clipboard">클립보드 </option>
-        <option value="file">PDF 파일</option>
+        <option value="pdf-text">PDF 텍스트 파일</option>
+        <option value="pdf-ocr">PDF 이미지 파일</option>
       </select>
       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
         <svg
