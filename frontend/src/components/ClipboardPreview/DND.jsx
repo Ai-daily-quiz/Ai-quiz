@@ -18,9 +18,13 @@ export const MyDropzone = ({ setUploadFile, onSendFile }) => {
     },
   });
 
-  const handleOnClick = () => {
-    onSendFile();
-    setUploadFile(null);
+  const handleOnClick = async () => {
+    try {
+      await onSendFile();
+      setUploadFile(null);
+    } catch (error) {
+      console.error('PDF 업로드 에러 : ', error);
+    }
   };
 
   const handleDeleteFile = () => {
