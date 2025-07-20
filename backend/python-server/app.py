@@ -13,9 +13,15 @@ import pdfplumber
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+geminai_key = os.getenv("GEMINI_API_KEY")
+if not geminai_key:
+    raise ValueError("GEMINI_API_KEY 환경변수를 설정하세요")
+genai.configure(geminai_key)
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_SERVICE_KEY")
+if not url or not key:
+    raise ValueError("SUPABASE 환경변수를 설정하세요")
+
 supabase: Client = create_client(url, key)
 
 model = genai.GenerativeModel("gemini-2.0-flash")
