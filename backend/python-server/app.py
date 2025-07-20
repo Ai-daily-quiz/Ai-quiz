@@ -8,7 +8,7 @@ from datetime import datetime
 from supabase import create_client, Client
 import jwt
 from cachetools import TTLCache
-import PyPDF2
+import pdfplumber
 
 load_dotenv()
 app = Flask(__name__)
@@ -353,10 +353,12 @@ def analyze_file():
             )
 
         file = request.files["file"]
-        reader = PyPDF2.PdfReader(file)
         all_text = ""
-        for page in reader.pages:
-            all_text += page.extract_text()
+        with pdfplumber.open(file) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    all_text += page_text + "\n"
 
         text = preprocessing_clipBoard_text(all_text)
         quiz_list, result = generate_quiz(text, user_id, formatted_date)
