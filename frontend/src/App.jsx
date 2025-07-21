@@ -11,7 +11,6 @@ import { useRequestTypeStore } from './store/useRequestTypeStore';
 
 function App() {
   const selectedMode = useRequestTypeStore(state => state.selectedMode);
-  console.log('selectedMode in store :', selectedMode);
 
   const [isPreview, setIsPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

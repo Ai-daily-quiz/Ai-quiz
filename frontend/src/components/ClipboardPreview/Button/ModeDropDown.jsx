@@ -1,15 +1,14 @@
 import { useRequestTypeStore } from '../../../store/useRequestTypeStore';
 export const ModeSelect = ({ setShowClipboard, setShowDropZone }) => {
+  const setSelectedMode = useRequestTypeStore(state => state.setSelectedMode);
+
   const handleChange = e => {
     const mode = e.target.value;
-    useRequestTypeStore.getState().setSelectedMode(mode);
+    setSelectedMode(mode);
 
     if (mode === 'clipboard') {
       setShowClipboard(true);
       setShowDropZone(false);
-    } else if (mode === 'pdf-text') {
-      setShowClipboard(false);
-      setShowDropZone(true);
     } else {
       setShowClipboard(false);
       setShowDropZone(true);

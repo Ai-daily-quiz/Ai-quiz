@@ -1,4 +1,3 @@
-from doctest import debug
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
@@ -10,8 +9,6 @@ from supabase import create_client, Client
 import jwt
 from cachetools import TTLCache
 import pdfplumber
-from PIL import Image
-import numpy as np
 import pytesseract
 from pdf2image import convert_from_bytes
 
@@ -390,7 +387,6 @@ def analyze_file():
 @app.route("/api/analyze-ocr", methods=["POST"])
 def analyze_ocr():
     auth_header = request.headers.get("Authorization", "")
-    path = request.headers.get("path", "")
     user_id = None
 
     if auth_header:
