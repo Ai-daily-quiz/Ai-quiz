@@ -44,7 +44,7 @@ export const TopicCards = ({
           {topics.map(topic => (
             <div
               key={topic.topic_id}
-              className="relative w-[180px] h-[220px] group cursor-pointer transform transition-all duration-300"
+              className="relative w-[160px] h-[220px] group cursor-pointer transform transition-all duration-300"
               onClick={e => {
                 const card = e.currentTarget;
 
