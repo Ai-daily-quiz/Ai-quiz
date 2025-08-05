@@ -137,7 +137,6 @@ app.post(
       fs.unlinkSync(req.file.path);
       res.json(response.data);
     } catch (error) {
-      // 분석 중 에러도 next 로 넘겨서 전역 에러 핸들러로
       if (req.file?.path) fs.unlinkSync(req.file.path);
       next(error);
     }
