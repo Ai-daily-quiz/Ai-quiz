@@ -53,18 +53,22 @@ def cache_get_topics():
     return cache["topics"]
 
 
+topics_ref, category_ref = cache_get_topics()
+
+
 def generate_quiz(text, user_id, formatted_date):
     prompt = f"""
-         **중요 다음 텍스트를 분석해서 적합한 카테고리를 2개 찾아줘.
+         **중요 다음 텍스트를 분석해서 적합한 카테고리를 6개 찾아줘.
         찾은 카테고리들은 겹치지 않게 서로 다른 카테고리들로만 골라줘 **
 
-        카테고리 주제 수 : 서로 다른 2개
+        카테고리 주제 수 : 서로 다른 6개
         주제당 퀴즈 문제 수 : 2개
             - 카테고리 주제 당 ox 문제 수 : 1개
             - 카테고리 주제 당 multiple a문제 수 : 1개
-        => 전체 총 question 퀴즈 문제 수 4개
+        => 전체 총 question 퀴즈 문제 수 12개
 
         카테고리 분류기준 : {category_ref}**
+        ** 제시하는 주제는 위 주제에서 벗어나지 않아야해**
 
         텍스트: {text[:MAX_TEXT_LENGTH]}
 
@@ -135,9 +139,6 @@ def generate_quiz(text, user_id, formatted_date):
             quiz_list.append(quiz_data)
 
     return quiz_list, result
-
-
-topics_ref, category_ref = cache_get_topics()
 
 
 def verify_token_and_get_uuid(token):
